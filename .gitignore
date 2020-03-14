@@ -1,0 +1,8 @@
+# file
+*/Assets
+*/Include
+*/Libs
+
+# exe
+*.exe
+*.out
