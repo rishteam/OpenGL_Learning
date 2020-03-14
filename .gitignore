@@ -1,6 +1,10 @@
 # file
 */Assets
-*/Include
+*/Include/FreeGLUT
+*/Include/GLEW
+*/Include/GLM
+*/Include/STB
+*/Include/TinyOBJ
 */Libs
 
 # exe
