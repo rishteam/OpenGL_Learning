@@ -10,3 +10,7 @@
 # exe
 *.exe
 *.out
+
+# macOS
+.DS_Store
+

@@ -1,4 +1,26 @@
-﻿#include "Include/Common.h"
+﻿#if defined(__APPLE__)
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+	#include <OpenGL/glext.h>
+	#include <Glut/glut.h>
+	#include <unistd.h>
+#else
+	#include "Include/Common.h"
+#endif
+
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	#define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
+	#define __FILEPATH__(x) ((std::string(__FILE__).substr(0, std::string(__FILE__).rfind('\\')) + (x)).c_str())
+#else
+	#define __FILENAME__ (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
+	#define __FILEPATH__(x) ((std::string(__FILE__).substr(0, std::string(__FILE__).rfind('/')) + (x)).c_str())
+#endif
+
+#include <cstdio>
+#include <cstring>
+#include <iostream>
+#include <string>
+#include <algorithm>
 #include <math.h>
 
 #define SIZE_1		1
@@ -194,34 +216,34 @@ void drawaxes(void)
 {
 	glColor3ub(255, 0, 0);
 	glBegin(GL_LINE_STRIP);
-	glVertex3f(0.0, 0.0, 0.0);
-	glVertex3f(1.0, 0.0, 0.0);
-	glVertex3f(0.75, 0.25, 0.0);
-	glVertex3f(0.75, -0.25, 0.0);
-	glVertex3f(1.0, 0.0, 0.0);
-	glVertex3f(0.75, 0.0, 0.25);
-	glVertex3f(0.75, 0.0, -0.25);
-	glVertex3f(1.0, 0.0, 0.0);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(1.0, 0.0, 0.0);
+		glVertex3f(0.75, 0.25, 0.0);
+		glVertex3f(0.75, -0.25, 0.0);
+		glVertex3f(1.0, 0.0, 0.0);
+		glVertex3f(0.75, 0.0, 0.25);
+		glVertex3f(0.75, 0.0, -0.25);
+		glVertex3f(1.0, 0.0, 0.0);
 	glEnd();
 	glBegin(GL_LINE_STRIP);
-	glVertex3f(0.0, 0.0, 0.0);
-	glVertex3f(0.0, 1.0, 0.0);
-	glVertex3f(0.0, 0.75, 0.25);
-	glVertex3f(0.0, 0.75, -0.25);
-	glVertex3f(0.0, 1.0, 0.0);
-	glVertex3f(0.25, 0.75, 0.0);
-	glVertex3f(-0.25, 0.75, 0.0);
-	glVertex3f(0.0, 1.0, 0.0);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(0.0, 1.0, 0.0);
+		glVertex3f(0.0, 0.75, 0.25);
+		glVertex3f(0.0, 0.75, -0.25);
+		glVertex3f(0.0, 1.0, 0.0);
+		glVertex3f(0.25, 0.75, 0.0);
+		glVertex3f(-0.25, 0.75, 0.0);
+		glVertex3f(0.0, 1.0, 0.0);
 	glEnd();
 	glBegin(GL_LINE_STRIP);
-	glVertex3f(0.0, 0.0, 0.0);
-	glVertex3f(0.0, 0.0, 1.0);
-	glVertex3f(0.25, 0.0, 0.75);
-	glVertex3f(-0.25, 0.0, 0.75);
-	glVertex3f(0.0, 0.0, 1.0);
-	glVertex3f(0.0, 0.25, 0.75);
-	glVertex3f(0.0, -0.25, 0.75);
-	glVertex3f(0.0, 0.0, 1.0);
+		glVertex3f(0.0, 0.0, 0.0);
+		glVertex3f(0.0, 0.0, 1.0);
+		glVertex3f(0.25, 0.0, 0.75);
+		glVertex3f(-0.25, 0.0, 0.75);
+		glVertex3f(0.0, 0.0, 1.0);
+		glVertex3f(0.0, 0.25, 0.75);
+		glVertex3f(0.0, -0.25, 0.75);
+		glVertex3f(0.0, 0.0, 1.0);
 	glEnd();
 
 	glColor3ub(255, 255, 0);
@@ -319,6 +341,7 @@ void main_reshape(int width, int height)
 	glViewport(0, 0, width, height);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
+
 	gluOrtho2D(0, width, height, 0);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
@@ -427,15 +450,15 @@ void world_display(void)
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	if (world_draw) {
-		
+
 		glPushMatrix();
 		glMultMatrixd(inverse);
 		glLightfv(GL_LIGHT0, GL_POSITION, light_pos);
 		glPopMatrix();
-		
+
 		glEnable(GL_LIGHTING);
 		drawmodel();
-		
+
 		glDisable(GL_LIGHTING);
 		drawaxes();
 	}

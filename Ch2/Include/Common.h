@@ -1,14 +1,14 @@
 #pragma once
 
-// #ifdef _MSC_VER
-#include "GLEW/glew.h"
-#include "FreeGLUT/freeglut.h"
-#include <direct.h>
-// #else
-//     #include <OpenGL/gl3.h>
-//     #include <GLUT/glut.h>
-//     #include <unistd.h>
-// #endif
+#if defined(_MSC_VER) || defined(__MINGW32__)
+	#include "GLEW/glew.h"
+	#include "FreeGLUT/freeglut.h"
+	#include <direct.h>
+#else
+    #include <OpenGL/gl3.h>
+    #include <GLUT/glut.h>
+    #include <unistd.h>
+#endif
 
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "TinyOBJ/tiny_obj_loader.h"
@@ -32,7 +32,7 @@
 #include <string>
 #include <algorithm>
 
-#ifdef _MSC_VER
+#if defined(_MSC_VER) || defined(__MINGW32__)
     #define __FILENAME__ (strrchr(__FILE__, '\\') ? strrchr(__FILE__, '\\') + 1 : __FILE__)
     #define __FILEPATH__(x) ((std::string(__FILE__).substr(0, std::string(__FILE__).rfind('\\'))+(x)).c_str())
 #else
