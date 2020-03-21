@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(ch2_example)
+project(Lab_example)
 
-add_executable(ch2
+add_executable(Lab
     main.cpp
 )
 
@@ -15,7 +15,7 @@ include_directories(
     ${GLUT_INCLUDE_DIRS}
 )
 
-target_link_libraries(ch2
+target_link_libraries(Lab
     ${OPENGL_LIBRARIES}
     GLUT::GLUT
     GLEW::GLEW

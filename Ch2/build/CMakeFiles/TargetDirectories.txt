@@ -1,0 +1,3 @@
+C:/Users/Sandy/Desktop/code/final_project/openGL_learning/Ch2/build/CMakeFiles/ch2.dir
+C:/Users/Sandy/Desktop/code/final_project/openGL_learning/Ch2/build/CMakeFiles/rebuild_cache.dir
+C:/Users/Sandy/Desktop/code/final_project/openGL_learning/Ch2/build/CMakeFiles/edit_cache.dir

@@ -5,7 +5,7 @@
 	#include <Glut/glut.h>
 	#include <unistd.h>
 #else
-	#include "Include/Common.h"
+	#include "../Include/Common.h"
 #endif
 
 #if defined(_MSC_VER) || defined(__MINGW32__)
