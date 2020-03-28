@@ -1,0 +1,28 @@
+newmtl flowers:mbflower1
+illum 4
+Kd 1.00 0.86 0.53
+Ka 0.46 0.39 0.24
+Tf 1.00 1.00 1.00
+Ni 1.00
+newmtl flowers:mbflrleaf
+illum 4
+Kd 0.14 0.24 0.15
+Ka 0.00 0.01 0.00
+Tf 1.00 1.00 1.00
+Ni 1.00
+Ks 0.30 0.30 0.30
+Ns 200.00
+newmtl flowers:mbflrstem
+illum 4
+Kd 0.07 0.23 0.09
+Ka 0.02 0.03 0.02
+Tf 1.00 1.00 1.00
+Ni 1.00
+newmtl flowers:mbvase1
+illum 4
+Kd 0.80 0.80 0.80
+Ka 0.40 0.40 0.40
+Tf 0.50 0.50 0.50
+Ni 1.00
+Ks 0.30 0.30 0.30
+Ns 60.00

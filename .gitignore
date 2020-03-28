@@ -1,16 +1,5 @@
-# file
-*/Assets
-*/Include/FreeGLUT
-*/Include/GLEW
-*/Include/GLM
-*/Include/STB
-*/Include/TinyOBJ
-*/Libs
-
 Ch3/*
-Include/*
-Libs/*
-
+build/*
 
 # exe
 *.exe
