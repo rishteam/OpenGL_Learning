@@ -1,15 +1,14 @@
-#include "../../Include/Common.h"
-#include <SFML/Window.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 using namespace std;
 
-// GLUT callback. Called to draw the scene.
 void My_Display()
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Update shaders' input variable
 	///////////////////////////
 	glColor3f(1.0, 0.0, 0.0);
 	glBegin(GL_TRIANGLES);
@@ -17,14 +16,15 @@ void My_Display()
 		glVertex2f( 0.0,  0.4);
 		glVertex2f( 0.4, -0.4);
 	glEnd();
-
-	///////////////////////////	
+	///////////////////////////
 }
 
 int main(int argc, char *argv[])
 {
-	sf::Window window(sf::VideoMode(800, 600), "OpenGL");
+	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
 	window.setVerticalSyncEnabled(true);
+	ImGui::SFML::Init(window);
+	sf::Clock deltaClock;
 	//check close
 	bool running = true;
 	// activate the window
@@ -32,10 +32,15 @@ int main(int argc, char *argv[])
 	// handle events
 	sf::Event event;
 
+	sf::CircleShape cir(50.f);
+	cir.setPosition(100, 100);
+	cir.setFillColor(sf::Color::Red);
+
 	while (running)
 	{
 		while (window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				// end the program
@@ -47,9 +52,23 @@ int main(int argc, char *argv[])
 				glViewport(0, 0, event.size.width, event.size.height);
 			}
 		}
+		ImGui::SFML::Update(window, deltaClock.restart());
+		// ImGui Update
+		ImGui::Begin("Debug");
+		ImGui::End();
+		/////////////////////////////////////////////////////////////////
+		// Draw
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		My_Display();
+		// SFML draws
+		window.pushGLStates();
+			window.draw(cir);
+		window.popGLStates();
+		// ImGui draws
+		window.pushGLStates();
+			ImGui::SFML::Render(window);
+		window.popGLStates();
 		window.display();
 	}
-
-	return 0;
+	ImGui::SFML::Shutdown();
 }
