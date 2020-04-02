@@ -1,4 +1,6 @@
 #include "../../Include/Common.h"
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
 
 using namespace std;
 
@@ -13,7 +15,7 @@ static const GLfloat triangle_vertices[] =
 	 0.4f, -0.4f, 0.0f, 1.0f,
 };
 
-char* vsSource = R"glsl(
+const char* vsSource = R"glsl(
 	#version 400
 
 	layout (location = 0) in vec4 position;
@@ -23,7 +25,7 @@ char* vsSource = R"glsl(
 		gl_Position = position;
 	}
 )glsl";
-char* fsSource = R"glsl(
+const char* fsSource = R"glsl(
 	#version 400
 
 	out vec4 color;
@@ -90,27 +92,40 @@ void My_Display()
 		//每三個頂點之間畫三角形，從buffer的哪個位置開始畫，頂點數量
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 	}
-	///////////////////////////	
-	glutSwapBuffers();
+	///////////////////////////
 }
 
 int main(int argc, char *argv[])
 {
-	// Initialize GLUT and GLEW, then create a window.
-	////////////////////
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	sf::Window window(sf::VideoMode(800, 600), "OpenGL");
+	window.setVerticalSyncEnabled(true);
+	//check close
+	bool running = true;
+	// activate the window
+	window.setActive(true);
 
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(600, 600);
-	glutCreateWindow("4.2.Shader"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
-	//Call custom initialize function
-	My_Init();
-	//Register GLUT callback functions
-	glutDisplayFunc(My_Display);
-
-	// Enter main event loop.
-	glutMainLoop();
-
+	while(running)
+	{
+		// handle events
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				// end the program
+				running = false;
+			}
+			else if (event.type == sf::Event::Resized)
+			{
+				// adjust the viewport when the window is resized
+				glViewport(0, 0, event.size.width, event.size.height);
+			}
+		}
+		//Call custom initialize function
+		My_Init();
+		//Register GLUT callback functions
+		My_Display();
+		window.display();
+	}
 	return 0;
 }

@@ -1,4 +1,6 @@
 #include "../../Include/Common.h"
+#include <SFML/Window.hpp>
+#include <SFML/OpenGL.hpp>
 
 using namespace std;
 
@@ -17,28 +19,37 @@ void My_Display()
 	glEnd();
 
 	///////////////////////////	
-	glutSwapBuffers();
 }
 
 int main(int argc, char *argv[])
 {
-	// Initialize GLUT and GLEW, then create a window.
-	////////////////////
-	glutInit(&argc, argv);
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
+	sf::Window window(sf::VideoMode(800, 600), "OpenGL");
+	window.setVerticalSyncEnabled(true);
+	//check close
+	bool running = true;
+	// activate the window
+	window.setActive(true);
+	// handle events
+	sf::Event event;
 
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(600, 600);
-	glutCreateWindow("4.1.Basic"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
-	//Register GLUT callback functions
-	////////////////////
-	glutDisplayFunc(My_Display);
-	////////////////////
-
-	// Enter main event loop.
-	glutMainLoop();
+	while (running)
+	{
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+			{
+				// end the program
+				running = false;
+			}
+			else if (event.type == sf::Event::Resized)
+			{
+				// adjust the viewport when the window is resized
+				glViewport(0, 0, event.size.width, event.size.height);
+			}
+		}
+		My_Display();
+		window.display();
+	}
 
 	return 0;
 }
