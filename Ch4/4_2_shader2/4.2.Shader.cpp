@@ -1,5 +1,7 @@
 #include "../../Include/Common.h"
-#include <SFML/Window.hpp>
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
 
 using namespace std;
