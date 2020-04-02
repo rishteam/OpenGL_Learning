@@ -9,7 +9,6 @@ add_executable(ch4
     4.2.Shader.cpp
 )
 
-
 if(APPLE)
     set(SFML_STATIC_LIBRARIES False)
     set(SFML_DIR "/usr/local/Cellar/sfml/2.5.1")

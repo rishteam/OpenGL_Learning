@@ -1,5 +1,6 @@
-#include "../../Include/Common.h"
-#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+// ** glew.h 一定要比 OpenGL 先 include **
+#include <GL/glew.h>
 #include <SFML/OpenGL.hpp>
 
 using namespace std;
@@ -83,7 +84,7 @@ void My_Display()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update shaders' input variable
-	///////////////////////////	
+	///////////////////////////
 	//使用program
 	glUseProgram(program);
 	{
@@ -97,13 +98,14 @@ void My_Display()
 
 int main(int argc, char *argv[])
 {
-	sf::Window window(sf::VideoMode(800, 600), "OpenGL");
+	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
 	window.setVerticalSyncEnabled(true);
 	//check close
 	bool running = true;
 	// activate the window
 	window.setActive(true);
 
+	My_Init();
 	while(running)
 	{
 		// handle events
@@ -121,8 +123,6 @@ int main(int argc, char *argv[])
 				glViewport(0, 0, event.size.width, event.size.height);
 			}
 		}
-		//Call custom initialize function
-		My_Init();
 		//Register GLUT callback functions
 		My_Display();
 		window.display();
