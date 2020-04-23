@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.6)
 
 project(ch5_example)
 
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug) # Debug Release
 
 add_executable(ch5
@@ -12,7 +12,9 @@ add_executable(ch5
 if(APPLE)
     set(SFML_STATIC_LIBRARIES False)
     set(SFML_DIR "/usr/local/Cellar/sfml/2.5.1")
-    target_compile_definitions(SFMLTest PUBLIC "GL_SILENCE_DEPRECATION")
+    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
+    # set(CMAKE_OSX_SYSROOT macosx10.12)
+    target_compile_definitions(ch5 PUBLIC "GL_SILENCE_DEPRECATION")
 elseif(MSYS)
     set(SFML_STATIC_LIBRARIES True)
     set(SFML_DIR "/mingw32/lib/cmake/SFML")

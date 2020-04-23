@@ -1,5 +1,9 @@
-#include <SFML/Graphics.hpp>
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iterator>
 #include <GL/glew.h>
+#include <SFML/Graphics.hpp>
 #include <SFML/OpenGL.hpp>
 
 #define MENU_EXIT 3
@@ -10,18 +14,15 @@ using namespace std;
 GLuint program;			//shader program
 
 //Read shader file
-char **LoadShaderSource(const char *file)
+std::string LoadShaderSource(const char file[])
 {
-	FILE *fp = fopen(file, "rb");
-	fseek(fp, 0, SEEK_END);
-	long sz = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-	char *src = new char[sz + 1];
-	fread(src, sizeof(char), sz, fp);
-	src[sz] = '\0';
-	char **srcp = new char *[1];
-	srcp[0] = src;
-	return srcp;
+	std::ifstream ifs(file);
+	std::string content;
+	if(ifs)
+	{
+		content.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>())); // read contents
+	}
+	return content;
 }
 
 //Release 2-dimension array
@@ -62,10 +63,10 @@ void My_Init()
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	char **vsSource = LoadShaderSource("vertex.vs.glsl");
-	char **fsSource = LoadShaderSource("fragment.fs.glsl");
-	glShaderSource(vs, 1, vsSource, NULL);
-	glShaderSource(fs, 1, fsSource, NULL);
+	const char *vsSource = LoadShaderSource("vertex.vs.glsl").c_str();
+	const char *fsSource = LoadShaderSource("fragment.fs.glsl").c_str();
+	glShaderSource(vs, 1, &vsSource, NULL);
+	glShaderSource(fs, 1, &fsSource, NULL);
 	// FreeShaderSource(vsSource);
 	// FreeShaderSource(fsSource);
 	glCompileShader(vs);
