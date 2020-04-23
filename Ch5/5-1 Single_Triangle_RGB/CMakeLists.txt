@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug) # Debug Release
 
 add_executable(ch5
-    main.cpp
+    Source/main.cpp
 )
 
 if(APPLE)
@@ -56,3 +56,7 @@ target_link_libraries(ch5
     # -mconsole / -mwindows
 )
 endif()
+
+# Copy shaders
+file(GLOB SHADERS "Source/*.glsl")
+file(COPY ${SHADERS} DESTINATION ${CMAKE_BINARY_DIR})

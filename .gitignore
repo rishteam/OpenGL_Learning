@@ -8,7 +8,6 @@ build/*
 # macOS
 .DS_Store
 
-*/build/*
-build/*
+build/
 
 .vscode/*
