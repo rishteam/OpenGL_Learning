@@ -12,7 +12,7 @@ add_executable(ch5
 if(APPLE)
     set(SFML_STATIC_LIBRARIES False)
     set(SFML_DIR "/usr/local/Cellar/sfml/2.5.1")
-    set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
+    # set(CMAKE_OSX_DEPLOYMENT_TARGET 10.14)
     # set(CMAKE_OSX_SYSROOT macosx10.12)
     target_compile_definitions(ch5 PUBLIC "GL_SILENCE_DEPRECATION")
 elseif(MSYS)

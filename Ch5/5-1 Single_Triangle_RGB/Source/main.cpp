@@ -2,18 +2,21 @@
 #include <fstream>
 #include <string>
 #include <iterator>
+//
 #include <GL/glew.h>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
+#include <imgui.h>
+#include <imgui-SFML.h>
 
 // using namespace glm;
 using namespace std;
 
 GLuint program;			//shader program
 
-//Read shader file
+// Read shader file
 std::string LoadShaderSource(const char file[])
 {
 	std::ifstream ifs(file);
@@ -23,13 +26,6 @@ std::string LoadShaderSource(const char file[])
 		content.assign((std::istreambuf_iterator<char>(ifs)), (std::istreambuf_iterator<char>())); // read contents
 	}
 	return content;
-}
-
-//Release 2-dimension array
-void FreeShaderSource(char **srcp)
-{
-	delete srcp[0];
-	delete srcp;
 }
 
 void ShaderLog(GLuint shader)
@@ -56,7 +52,6 @@ void ShaderLog(GLuint shader)
 
 void init()
 {
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glewInit();
@@ -129,6 +124,8 @@ void drawTriangle()
 int main(int argc, char *argv[])
 {
 	bool running = true;
+	sf::Clock deltaClock;
+	sf::Event event;
 	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
 	window.setVerticalSyncEnabled(true);
 	window.setActive(true);
@@ -138,9 +135,9 @@ int main(int argc, char *argv[])
 
 	while (running)
 	{
-		sf::Event event;
 		while (window.pollEvent(event))
 		{
+			ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				running = false;
@@ -151,9 +148,18 @@ int main(int argc, char *argv[])
 				glViewport(0, 0, event.size.width, event.size.height);
 			}
 		}
+		ImGui::SFML::Update(window, deltaClock.restart());
+		// ImGui Update
+		ImGui::Begin("Debug");
+		ImGui::End();
+		/////////////////////////////////////////////////////////////////
+		// Draw
 		//
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawTriangle();
+		window.pushGLStates();
+			ImGui::SFML::Render(window);
+		window.popGLStates();
 		window.display();
 	}
 	return 0;
