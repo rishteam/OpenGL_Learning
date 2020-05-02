@@ -1,4 +1,4 @@
-#include "../Include/ViewManager.h"
+#include "ViewManager.h"
 
 using namespace glm;
 
@@ -88,92 +88,92 @@ void ViewManager::keyEvents(unsigned char key) {
 	}
 }
 
-void ViewManager::mouseEvents(int button, int state, int x, int y) {
+// void ViewManager::mouseEvents(int button, int state, int x, int y) {
 
-	if (state == GLUT_UP)
-	{
-		mouseReleaseEvent(button, x, y);
-	}
-	else if (state == GLUT_DOWN) 
-	{
-		mousePressEvent(button, x, y);
-	}
-	if (button == 4) 
-	{
-		wheelEvent(1);
-	}
-	else if (button == 3)
-	{
-		wheelEvent(-1);
-	}
-}
+// 	if (state == GLUT_UP)
+// 	{
+// 		mouseReleaseEvent(button, x, y);
+// 	}
+// 	else if (state == GLUT_DOWN) 
+// 	{
+// 		mousePressEvent(button, x, y);
+// 	}
+// 	if (button == 4) 
+// 	{
+// 		wheelEvent(1);
+// 	}
+// 	else if (button == 3)
+// 	{
+// 		wheelEvent(-1);
+// 	}
+// }
 
-void ViewManager::mousePressEvent(int button, int x, int y)
-{
-    if( button == GLUT_LEFT_BUTTON)
-	{
-        lmbDown = true;
-        lmbDownCoord = vec2(x,y);
-        mat4 invrtRot = inverse(rotationMatrix);
-        rotateYAxis = (invrtRot * vec4(0, 1, 0, 0)).xyz;
-        rotateXAxis = (invrtRot * vec4(1, 0, 0, 0)).xyz;
-    } 
-	else if(button == GLUT_MIDDLE_BUTTON)
-	{
-        midDown = true;
-        midDownCoord = vec2(x, y);
-    }
-}
+// void ViewManager::mousePressEvent(int button, int x, int y)
+// {
+//     if( button == GLUT_LEFT_BUTTON)
+// 	{
+//         lmbDown = true;
+//         lmbDownCoord = vec2(x,y);
+//         mat4 invrtRot = inverse(rotationMatrix);
+//         rotateYAxis = (invrtRot * vec4(0, 1, 0, 0)).xyz;
+//         rotateXAxis = (invrtRot * vec4(1, 0, 0, 0)).xyz;
+//     } 
+// 	else if(button == GLUT_MIDDLE_BUTTON)
+// 	{
+//         midDown = true;
+//         midDownCoord = vec2(x, y);
+//     }
+// }
 
-void ViewManager::mouseReleaseEvent(int button, int x, int y)
-{
-    if( button == GLUT_LEFT_BUTTON)
-	{
-        lmbDown = false;
-    }
-	else if(button == GLUT_MIDDLE_BUTTON || button == 3 || button == 4) {
-        midDown = false;
-    }
-}
+// void ViewManager::mouseReleaseEvent(int button, int x, int y)
+// {
+//     if( button == GLUT_LEFT_BUTTON)
+// 	{
+//         lmbDown = false;
+//     }
+// 	else if(button == GLUT_MIDDLE_BUTTON || button == 3 || button == 4) {
+//         midDown = false;
+//     }
+// }
 
-void ViewManager::mouseMoveEvent(int x,int y)
-{
-    if(lmbDown)
-	{
-        vec2 coord = vec2(x, y);
-		vec2 diff = coord - lmbDownCoord;
-        float factor = 0.002f;
-        rotationMatrix = rotate(rotationMatrix,diff.x * factor, rotateYAxis);
-        rotationMatrix = rotate(rotationMatrix,diff.y * factor, rotateXAxis);
-        lmbDownCoord = coord;
-    }
-	else if(midDown)
-	{
-		vec2 coord = vec2(x,y);
-		vec2 diff = coord - midDownCoord;
+// void ViewManager::mouseMoveEvent(int x,int y)
+// {
+//     if(lmbDown)
+// 	{
+//         vec2 coord = vec2(x, y);
+// 		vec2 diff = coord - lmbDownCoord;
+//         float factor = 0.002f;
+//         rotationMatrix = rotate(rotationMatrix,diff.x * factor, rotateYAxis);
+//         rotationMatrix = rotate(rotationMatrix,diff.y * factor, rotateXAxis);
+//         lmbDownCoord = coord;
+//     }
+// 	else if(midDown)
+// 	{
+// 		vec2 coord = vec2(x,y);
+// 		vec2 diff = coord - midDownCoord;
 
-		vec4 up = vec4(0, 1, 0, 0);
-		vec4 right = vec4(1, 0, 0, 0);
+// 		vec4 up = vec4(0, 1, 0, 0);
+// 		vec4 right = vec4(1, 0, 0, 0);
 
-		vec3 diffUp = up.xyz * diff.y / (float)w_height;
-		vec3 diffRight = right.xyz * diff.x / (float)w_width;
+// 		vec3 diffUp = up.xyz * diff.y / (float)w_height;
+// 		vec3 diffRight = right.xyz * diff.x / (float)w_width;
 
-        translationMatrix = translate(translationMatrix, (-diffUp + diffRight) * zoom * 3.0f);
-        midDownCoord = coord;
-    }
-}
+//         translationMatrix = translate(translationMatrix, (-diffUp + diffRight) * zoom * 3.0f);
+//         midDownCoord = coord;
+//     }
+// }
 
-void ViewManager::wheelEvent(int direction)
-{
-	wheel_val = direction * 15.0f;
-    Zoom(wheel_val / 120.0f);
-}
+// void ViewManager::wheelEvent(int direction)
+// {
+// 	wheel_val = direction * 15.0f;
+//     Zoom(wheel_val / 120.0f);
+// }
 
-void ViewManager::Zoom(float distance)
-{
-    zoom *= (1.0f + 0.05f * distance);
-    zoom = clamp(0.1f, zoom, 3.0f);
-}
+// void ViewManager::Zoom(float distance)
+// {
+//     zoom *= (1.0f + 0.05f * distance);
+//     zoom = clamp(0.1f, zoom, 3.0f);
+// }
 
 void ViewManager::SetWindowSize(int width,int height) {
 	w_width = width;

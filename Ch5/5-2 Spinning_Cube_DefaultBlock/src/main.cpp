@@ -4,7 +4,12 @@
 #include <iterator>
 
 #include <GL/glew.h>
-#include "../../../Include/ViewManager.h"
+//OpenGL Mathematics 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/rotate_vector.hpp"
+
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
@@ -113,7 +118,6 @@ void init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glewInit();
-
 	//Initialize shaders
 	///////////////////////////
     program = glCreateProgram();
@@ -135,7 +139,7 @@ void init()
     glAttachShader(program, vs);
     glAttachShader(program, fs);
     glLinkProgram(program);
-	glUseProgram(program);
+
 	///////////////////////////
 
 	//bind vao and buffer
@@ -149,9 +153,9 @@ void init()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
-	//啟用改變剃除面
+	// //啟用改變剃除面
 	glEnable(GL_CULL_FACE);
-	//以順時針代表正面
+	// //以順時針代表正面
 	glFrontFace(GL_CW);
 
 	mv_location = glGetUniformLocation(program, "mv_matrix");
@@ -165,7 +169,7 @@ void Render()
 
 	//Update shaders' input variable
 	///////////////////////////
-	static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
+	static const GLfloat green[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	static const GLfloat one = 1.0f;
 	glClearBufferfv(GL_COLOR, 0, green);
 	glClearBufferfv(GL_DEPTH, 0, &one);
@@ -174,9 +178,10 @@ void Render()
 
 	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
 
-	mat4 Identy_Init(1.0);
 	sf::Clock clock; // starts the clock
-	auto currentTime = clock.getElapsedTime().asSeconds();
+	mat4 Identy_Init(1.0);
+	auto currentTime = clock.getElapsedTime().asMilliseconds();
+	// float currentTime = 0.005f;
 	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
 	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
 	mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
@@ -191,9 +196,6 @@ void Render()
 
 int main(int argc, char *argv[])
 {
-
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-
 	bool running = true;
 	sf::Clock deltaClock;
 	sf::Event event;
@@ -202,10 +204,15 @@ int main(int argc, char *argv[])
 	window.setActive(true);
 	// Init
 	init();
-
-
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glViewport(0, 0, 800, 600);
+	float viewportAspect = (float)800 / (float)600;
+	proj_matrix = perspective(deg2rad(30.0f), viewportAspect, 0.1f, 100.0f);
 	while (running)
 	{
+		// show OpenGL version number
+		// sf::ContextSettings settings = window.getSettings();
+		// std::cout << "OpenGL version:" << settings.majorVersion << "." << settings.minorVersion << std::endl;
 		while (window.pollEvent(event))
 		{
 			// ImGui::SFML::ProcessEvent(event);
@@ -217,6 +224,8 @@ int main(int argc, char *argv[])
 			{
 				// adjust the viewport when the window is resized
 				glViewport(0, 0, event.size.width, event.size.height);
+				float viewportAspect = (float)event.size.width / (float)event.size.height;
+				proj_matrix = perspective(deg2rad(30.0f), viewportAspect, 0.1f, 100.0f);
 			}
 		}
 

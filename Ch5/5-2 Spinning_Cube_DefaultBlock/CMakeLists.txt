@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.9)
 
 project(ch5_example)
 
@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_BUILD_TYPE Debug) # Debug Release
 
 add_executable(ch5
-    Source/main.cpp
+    src/main.cpp
 )
 
 if(APPLE)
@@ -49,6 +49,12 @@ target_link_libraries(ch5
     GLEW::GLEW
 )
 
+# Add GLM
+find_package(glm REQUIRED)
+target_link_libraries(ch5
+  glm
+)
+
 if(MSYS)
 target_link_libraries(ch5
     -static-libgcc -static-libstdc++ -lwsock32 -lws2_32
@@ -58,5 +64,5 @@ target_link_libraries(ch5
 endif()
 
 # Copy shaders
-file(GLOB SHADERS "Source/*.glsl")
+file(GLOB SHADERS "src/*.glsl")
 file(COPY ${SHADERS} DESTINATION ${CMAKE_BINARY_DIR})

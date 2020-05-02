@@ -2,12 +2,13 @@
 #include <fstream>
 #include <string>
 #include <iterator>
-//
+
 #include <GL/glew.h>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 
@@ -137,7 +138,7 @@ int main(int argc, char *argv[])
 	{
 		while (window.pollEvent(event))
 		{
-			ImGui::SFML::ProcessEvent(event);
+			// ImGui::SFML::ProcessEvent(event);
 			if (event.type == sf::Event::Closed)
 			{
 				running = false;
@@ -148,18 +149,18 @@ int main(int argc, char *argv[])
 				glViewport(0, 0, event.size.width, event.size.height);
 			}
 		}
-		ImGui::SFML::Update(window, deltaClock.restart());
+		// ImGui::SFML::Update(window, deltaClock.restart());
 		// ImGui Update
-		ImGui::Begin("Debug");
-		ImGui::End();
+		// ImGui::Begin("Debug");
+		// ImGui::End();
 		/////////////////////////////////////////////////////////////////
 		// Draw
 		//
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		drawTriangle();
-		window.pushGLStates();
-			ImGui::SFML::Render(window);
-		window.popGLStates();
+		// window.pushGLStates();
+			// ImGui::SFML::Render(window);
+		// window.popGLStates();
 		window.display();
 	}
 	return 0;
