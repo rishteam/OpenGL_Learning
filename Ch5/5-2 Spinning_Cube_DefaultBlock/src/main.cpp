@@ -4,7 +4,7 @@
 #include <iterator>
 
 #include <GL/glew.h>
-//OpenGL Mathematics 
+//OpenGL Mathematics
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
@@ -161,7 +161,16 @@ void init()
 	mv_location = glGetUniformLocation(program, "mv_matrix");
 	proj_location = glGetUniformLocation(program, "proj_matrix");
 
+	//View initial
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glViewport(0, 0, 800, 600);
+	float viewportAspect = (float)800 / (float)600;
+	//fov, aspect, near, far
+	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
 }
+
+float timer = 0, cnt = 0;
+#define DELAY 2.0
 
 void Render()
 {
@@ -178,15 +187,29 @@ void Render()
 
 	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
 
-	sf::Clock clock; // starts the clock
 	mat4 Identy_Init(1.0);
-	auto currentTime = clock.getElapsedTime().asMilliseconds();
+	// auto currentTime = clock.getElapsedTime().asMicroseconds();
 	// float currentTime = 0.005f;
 	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
 	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
-	mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 45.0f), vec3(0.0f, 1.0f, 0.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
+	// mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
+
+	sf::Clock clock; // starts the clock
+	float unit_time = clock.getElapsedTime().asMicroseconds();
+	clock.restart();
+	timer += unit_time;
+
+	if (timer > DELAY)
+	{
+		if (cnt == 360)
+			cnt = 0;
+		else
+			cnt += 45;
+
+		timer = 0;
+	}
+	mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
+	// mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
 
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 
@@ -204,10 +227,7 @@ int main(int argc, char *argv[])
 	window.setActive(true);
 	// Init
 	init();
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glViewport(0, 0, 800, 600);
-	float viewportAspect = (float)800 / (float)600;
-	proj_matrix = perspective(deg2rad(30.0f), viewportAspect, 0.1f, 100.0f);
+
 	while (running)
 	{
 		// show OpenGL version number
@@ -228,7 +248,6 @@ int main(int argc, char *argv[])
 				proj_matrix = perspective(deg2rad(30.0f), viewportAspect, 0.1f, 100.0f);
 			}
 		}
-
 		Render();
 		window.display();
 	}
