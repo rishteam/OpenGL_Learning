@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.9)
 
 project(ch5_example)
 
@@ -47,6 +47,12 @@ target_link_libraries(ch5
 find_package(GLEW REQUIRED)
 target_link_libraries(ch5
     GLEW::GLEW
+)
+
+# Add GLM
+find_package(glm REQUIRED)
+target_link_libraries(ch5
+  glm
 )
 
 if(MSYS)

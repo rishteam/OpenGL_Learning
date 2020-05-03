@@ -21,11 +21,16 @@ using namespace std;
 #define deg2rad(x) ((x) * ((3.1415926f) / (180.0f)))
 #define rad2deg(x) ((180.0f) / ((x) * (3.1415926f)))
 
+using namespace glm;
+using namespace std;
+
 GLuint          program;
 GLuint          vao;
 GLuint          buffer;
 GLint           mv_location;
 GLint           proj_location;
+GLint mvp_index;
+GLuint ubo;
 mat4 proj_matrix;
 
 static const GLfloat vertex_positions[] =
@@ -90,7 +95,7 @@ std::string LoadShaderSource(const char file[])
 	}
 	return content;
 }
-
+// shader Log
 void ShaderLog(GLuint shader)
 {
 	GLint isCompiled;
@@ -118,14 +123,15 @@ void init()
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glewInit();
+
 	//Initialize shaders
 	///////////////////////////
     program = glCreateProgram();
 
-    GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
 	static std::string vss = LoadShaderSource("vertex.vs.glsl");
-	const char* vsSource = vss.c_str();
+	const char *vsSource = vss.c_str();
 	static std::string fss = LoadShaderSource("fragment.fs.glsl");
 	const char *fsSource = fss.c_str();
 	glShaderSource(vs, 1, &vsSource, NULL);
@@ -153,14 +159,20 @@ void init()
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
 
-	// 啟用改變剃除面
 	glEnable(GL_CULL_FACE);
-	// 以順時針代表正面，
 	glFrontFace(GL_CW);
 
-	//拿取default中的uniform的參數位置
-	mv_location = glGetUniformLocation(program, "mv_matrix");
-	proj_location = glGetUniformLocation(program, "proj_matrix");
+	// 取得Uniform block的index
+	mvp_index = glGetUniformBlockIndex(program, "mvp");
+	//將uniform block 綁到一個指定的binding point上
+	glUniformBlockBinding(program, mvp_index, 1);
+
+	//初始化UBO
+	glGenBuffers(1, &ubo);
+	//將buffer綁到binding point上
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
+	//建立兩個矩陣buffer
+	glBufferData(GL_UNIFORM_BUFFER, sizeof(mat4) * 2, NULL, GL_DYNAMIC_DRAW);
 
 	//View initial
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
@@ -168,6 +180,7 @@ void init()
 	float viewportAspect = (float)800 / (float)600;
 	//fov, aspect(長寬比例), near, far
 	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
+
 }
 
 float timer = 0, cnt = 0;
@@ -177,19 +190,20 @@ void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//Update shaders' input variable
-	///////////////////////////
 	static const GLfloat green[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	static const GLfloat one = 1.0f;
 	glClearBufferfv(GL_COLOR, 0, green);
 	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glUseProgram(program);
-	// 改變矩陣的值
-	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
+
+	//UBO bind
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
+	//更新資料target, offset, size, data
+	glBufferSubData(GL_UNIFORM_BUFFER, sizeof(mat4), sizeof(mat4), &proj_matrix);
 
 	mat4 Identy_Init(1.0);
-	// auto currentTime = clock.getElapsedTimeglGetUniformLocation().asMicroseconds();
+	// auto currentTime = clock.getElapsedTime().asMicroseconds();
 	// float currentTime = 0.005f;
 	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
 	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
@@ -211,11 +225,15 @@ void Render()
 	}
 	mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
 	// mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
-	// 改變矩陣的值
-	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
+
+	//UBO
+	glBindBufferBase(GL_UNIFORM_BUFFER, 1, ubo);
+	//更新資料target, offset, size, data
+	glBufferSubData(GL_UNIFORM_BUFFER, 0, sizeof(mat4), &mv_matrix);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 }
+
 
 
 int main(int argc, char *argv[])
