@@ -144,9 +144,10 @@ void init()
 	glBindVertexArray(square_vao);
 	//綁定buffer
 	glBindBuffer(GL_ARRAY_BUFFER, square_buffer);
-	//將頂點資訊存入buffer中
+	//給定buffer大小
 	glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices) + sizeof(instance_colors) + sizeof(instance_positions), NULL, GL_STATIC_DRAW);
 	//個別設定存入的參數值，設定頂點座標
+	//用glBufferSubData可以透過offset來更新buffer-object中的資料
 	offset = 0;
 	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(square_vertices), square_vertices);
 	//移動buffer的offset，使接下來的顏色及座標依序存入
@@ -187,93 +188,6 @@ void Render()
 	//mode, 頂點陣列, 陣列大小, instance次數
 	glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 4);
 }
-
-// //Call to resize the window
-// void My_Reshape(int width, int height)
-// {
-// 	aspect = width * 1.0f / height;
-// 	m_camera.SetWindowSize(width, height);
-// 	glViewport(0, 0, width, height);
-// }
-
-// //Timer event
-// void My_Timer(int val)
-// {
-// 	glutPostRedisplay();
-// 	glutTimerFunc(16, My_Timer, val);
-// }
-
-// //Mouse event
-// void My_Mouse(int button, int state, int x, int y)
-// {
-// 	m_camera.mouseEvents(button, state, x, y);
-
-// 	if (button == GLUT_LEFT_BUTTON)
-// 	{
-// 		if (state == GLUT_DOWN)
-// 		{
-// 			printf("Mouse %d is pressed at (%d, %d)\n", button, x, y);
-// 		}
-// 		else if (state == GLUT_UP)
-// 		{
-// 			printf("Mouse %d is released at (%d, %d)\n", button, x, y);
-// 		}
-// 	}
-// 	else if (button == GLUT_RIGHT_BUTTON)
-// 	{
-// 		printf("Mouse %d is pressed\n", button);
-// 	}
-
-// }
-
-// //Keyboard event
-// void My_Keyboard(unsigned char key, int x, int y)
-// {
-// 	printf("Key %c is pressed at (%d, %d)\n", key, x, y);
-// }
-
-// //Special key event
-// void My_SpecialKeys(int key, int x, int y)
-// {
-// 	switch (key)
-// 	{
-// 	case GLUT_KEY_F1:
-// 		printf("F1 is pressed at (%d, %d)\n", x, y);
-// 		break;
-// 	case GLUT_KEY_PAGE_UP:
-// 		printf("Page up is pressed at (%d, %d)\n", x, y);
-// 		break;
-// 	case GLUT_KEY_LEFT:
-// 		printf("Left arrow is pressed at (%d, %d)\n", x, y);
-// 		break;
-// 	default:
-// 		printf("Other special key is pressed at (%d, %d)\n", x, y);
-// 		break;
-// 	}
-// }
-
-// //Menu event
-// void My_Menu(int id)
-// {
-// 	switch (id)
-// 	{
-// 	case MENU_Entry1:
-// 		printf("Entry1 is selected.\n");
-// 		break;
-// 	case MENU_Entry2:
-// 		printf("Entry2 is selected.\n");
-// 		break;
-// 	case MENU_EXIT:
-// 		exit(0);
-// 		break;
-// 	default:
-// 		break;
-// 	}
-// }
-
-// void My_Mouse_Moving(int x, int y) {
-// 	m_camera.mouseMoveEvent(x, y);
-// }
 
 int main(int argc, char *argv[])
 {
