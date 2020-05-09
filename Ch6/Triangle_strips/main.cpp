@@ -19,6 +19,9 @@
 using namespace glm;
 using namespace std;
 
+#define deg2rad(x) ((x) * ((3.1415926f) / (180.0f)))
+#define rad2deg(x) ((180.0f) / ((x) * (3.1415926f)))
+
 //uniform id
 struct
 {
@@ -33,40 +36,33 @@ typedef struct
 
 } Shape;
 
-GLuint			square_buffer;
-GLuint			square_vao;
+GLuint          vao;
+GLuint          buffer;
+GLint           mv_location;
+GLint           proj_location;
 GLuint			program;			//shader program
 mat4			proj_matrix;		//projection matrix
 float			aspect;
 
 Shape			m_shape;
 
-#define deg2rad(x) ((x) * ((3.1415926f) / (180.0f)))
-#define rad2deg(x) ((180.0f) / ((x) * (3.1415926f)))
+static const GLfloat triangle_positions[] =
+{
+	.25f, .25f,  0.25f,
+	-.25f, -.25f,  0.25f,
+	-.25f,  .25f,  0.25f,
 
-//宣告一個正方形的頂點座標
-static const GLfloat square_vertices[] =
-{
-	-1.0f, -1.0f, 0.0f, 1.0f,
-	1.0f, -1.0f, 0.0f, 1.0f,
-	1.0f,  1.0f, 0.0f, 1.0f,
-	-1.0f,  1.0f, 0.0f, 1.0f
+	.25f, -.25f,  0.25f,
+	-.25f, -.25f,  0.25f,
+	.25f,  .25f,  0.25f,
 };
-//宣告正方形的顏色
-static const GLfloat instance_colors[] =
+
+static const GLfloat triangle_strips_positions[] =
 {
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 0.0f, 1.0f
-};
-//宣告每個正方形的所在座標
-static const GLfloat instance_positions[] =
-{
-	-2.0f, -2.0f, 0.0f, 0.0f,
-	2.0f, -2.0f, 0.0f, 0.0f,
-	2.0f,  2.0f, 0.0f, 0.0f,
-	-2.0f,  2.0f, 0.0f, 0.0f
+	.25f, -.25f,  0.25f,//(1)
+	-.25f, -.25f,  0.25f,//(2)
+	.25f,  .25f,  0.25f,//(3)
+	-.25f, .25f,  0.25f,//(4)
 };
 
 // Read shader file
@@ -113,14 +109,14 @@ void init()
 	glewInit();
 
 	//Initialize shaders
-	///////////////////////////
+	///////////////////////////	
 	program = glCreateProgram();
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	static std::string vss = LoadShaderSource("Instanced_Rendering.vs.glsl");
+	static std::string vss = LoadShaderSource("triangle.vs.glsl");
 	const char *vsSource = vss.c_str();
-	static std::string fss = LoadShaderSource("Instanced_Rendering.fs.glsl");
+	static std::string fss = LoadShaderSource("triangle.fs.glsl");
 	const char *fsSource = fss.c_str();
 	glShaderSource(vs, 1, &vsSource, NULL);
 	glShaderSource(fs, 1, &fsSource, NULL);
@@ -135,58 +131,43 @@ void init()
 	glLinkProgram(program);
 
 	glUseProgram(program);
-	///////////////////////////
-	//產生VAO
-	glGenVertexArrays(1, &square_vao);
-	//產生VBO
-	glGenBuffers(1, &square_buffer);
-	//綁定VAO
-	glBindVertexArray(square_vao);
-	//綁定VBO
-	glBindBuffer(GL_ARRAY_BUFFER, square_buffer);
-	//給定VBO大小
-	glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices) + sizeof(instance_colors) + sizeof(instance_positions), NULL, GL_STATIC_DRAW);
-	//個別設定存入的參數值，設定頂點座標
-	//用glBufferSubData可以透過offset來更新buffer-object中的資料
-	offset = 0;
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(square_vertices), square_vertices);
-	//移動buffer的offset，使接下來的顏色及座標依序存入
-	offset += sizeof(square_vertices);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_colors), instance_colors);
-	offset += sizeof(instance_colors);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_positions), instance_positions);
-	offset += sizeof(instance_positions);
+	///////////////////////////	
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 
-	//指派vertex shader的輸入對應
-	//index, size, type, normalized, stride, pointer(指向第一個頂點的第一個屬性位置)
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(square_vertices));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(sizeof(square_vertices) + sizeof(instance_colors)));
-
-	//啟用頂點屬性陣列
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	//需要的頂點屬性,每隔一個實例更新一次屬性內容
-	//update color
-	glVertexAttribDivisor(1, 1);
-	//update position
-	glVertexAttribDivisor(2, 1);
-}
 
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+
+	//Load model to shader program
+}
 
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	static const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	glClearBufferfv(GL_COLOR, 0, black);
+	static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
+	static const GLfloat one = 1.0f;
+	glClearBufferfv(GL_COLOR, 0, green);
+	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glUseProgram(program);
-	glBindVertexArray(square_vao);
-	//mode, 頂點陣列, 陣列大小, instance次數
-	glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 4);
+
+	mat4 Identy_Init(1.0);
+	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
+
+	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_positions), triangle_positions, GL_STATIC_DRAW);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
+
+	//TODO: 換位置在同畫面
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_strips_positions), triangle_strips_positions, GL_STATIC_DRAW);
+	// glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
+
 }
 
 int main(int argc, char *argv[])
@@ -198,7 +179,7 @@ int main(int argc, char *argv[])
 	window.setVerticalSyncEnabled(true);
 	window.setActive(true);
 	// Init
-	init();
+	// init();
 
 	while (running)
 	{

@@ -15,9 +15,11 @@
 #include <SFML/System.hpp>
 #include <SFML/OpenGL.hpp>
 
-
 using namespace glm;
 using namespace std;
+
+#define deg2rad(x) ((x) * ((3.1415926f) / (180.0f)))
+#define rad2deg(x) ((180.0f) / ((x) * (3.1415926f)))
 
 //uniform id
 struct
@@ -33,41 +35,70 @@ typedef struct
 
 } Shape;
 
-GLuint			square_buffer;
-GLuint			square_vao;
+GLuint          vao;
+GLuint          buffer;
+GLint           mv_location;
+GLint           proj_location;
 GLuint			program;			//shader program
 mat4			proj_matrix;		//projection matrix
 float			aspect;
 
 Shape			m_shape;
 
-#define deg2rad(x) ((x) * ((3.1415926f) / (180.0f)))
-#define rad2deg(x) ((180.0f) / ((x) * (3.1415926f)))
+//36個點，組出12個三角形
+static const GLfloat vertex_positions[] =
+{
+	-0.25f,  0.25f, -0.25f,
+	-0.25f, -0.25f, -0.25f,
+	0.25f, -0.25f, -0.25f,
 
-//宣告一個正方形的頂點座標
-static const GLfloat square_vertices[] =
-{
-	-1.0f, -1.0f, 0.0f, 1.0f,
-	1.0f, -1.0f, 0.0f, 1.0f,
-	1.0f,  1.0f, 0.0f, 1.0f,
-	-1.0f,  1.0f, 0.0f, 1.0f
+	0.25f, -0.25f, -0.25f,
+	0.25f,  0.25f, -0.25f,
+	-0.25f,  0.25f, -0.25f,
+
+	0.25f, -0.25f, -0.25f,
+	0.25f, -0.25f,  0.25f,
+	0.25f,  0.25f, -0.25f,
+
+	0.25f, -0.25f,  0.25f,
+	0.25f,  0.25f,  0.25f,
+	0.25f,  0.25f, -0.25f,
+
+	0.25f, -0.25f,  0.25f,
+	-0.25f, -0.25f,  0.25f,
+	0.25f,  0.25f,  0.25f,
+
+	-0.25f, -0.25f,  0.25f,
+	-0.25f,  0.25f,  0.25f,
+	0.25f,  0.25f,  0.25f,
+
+	-0.25f, -0.25f,  0.25f,
+	-0.25f, -0.25f, -0.25f,
+	-0.25f,  0.25f,  0.25f,
+
+	-0.25f, -0.25f, -0.25f,
+	-0.25f,  0.25f, -0.25f,
+	-0.25f,  0.25f,  0.25f,
+
+	-0.25f, -0.25f,  0.25f,
+	0.25f, -0.25f,  0.25f,
+	0.25f, -0.25f, -0.25f,
+
+	0.25f, -0.25f, -0.25f,
+	-0.25f, -0.25f, -0.25f,
+	-0.25f, -0.25f,  0.25f,
+
+	-0.25f,  0.25f, -0.25f,
+	0.25f,  0.25f, -0.25f,
+	0.25f,  0.25f,  0.25f,
+
+	0.25f,  0.25f,  0.25f,
+	-0.25f,  0.25f,  0.25f,
+	-0.25f,  0.25f, -0.25f
 };
-//宣告正方形的顏色
-static const GLfloat instance_colors[] =
-{
-	1.0f, 0.0f, 0.0f, 1.0f,
-	0.0f, 1.0f, 0.0f, 1.0f,
-	0.0f, 0.0f, 1.0f, 1.0f,
-	1.0f, 1.0f, 0.0f, 1.0f
-};
-//宣告每個正方形的所在座標
-static const GLfloat instance_positions[] =
-{
-	-2.0f, -2.0f, 0.0f, 0.0f,
-	2.0f, -2.0f, 0.0f, 0.0f,
-	2.0f,  2.0f, 0.0f, 0.0f,
-	-2.0f,  2.0f, 0.0f, 0.0f
-};
+
+
+GLuint offset = 0;
 
 // Read shader file
 std::string LoadShaderSource(const char file[])
@@ -103,24 +134,23 @@ void ShaderLog(GLuint shader)
 	}
 }
 
-GLuint offset = 0;
-
 void init()
 {
+
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glewInit();
 
 	//Initialize shaders
-	///////////////////////////
+	///////////////////////////	
 	program = glCreateProgram();
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	static std::string vss = LoadShaderSource("Instanced_Rendering.vs.glsl");
+	static std::string vss = LoadShaderSource("spinning_cube.vs.glsl");
 	const char *vsSource = vss.c_str();
-	static std::string fss = LoadShaderSource("Instanced_Rendering.fs.glsl");
+	static std::string fss = LoadShaderSource("spinning_cube.fs.glsl");
 	const char *fsSource = fss.c_str();
 	glShaderSource(vs, 1, &vsSource, NULL);
 	glShaderSource(fs, 1, &fsSource, NULL);
@@ -135,58 +165,58 @@ void init()
 	glLinkProgram(program);
 
 	glUseProgram(program);
-	///////////////////////////
-	//產生VAO
-	glGenVertexArrays(1, &square_vao);
-	//產生VBO
-	glGenBuffers(1, &square_buffer);
-	//綁定VAO
-	glBindVertexArray(square_vao);
-	//綁定VBO
-	glBindBuffer(GL_ARRAY_BUFFER, square_buffer);
-	//給定VBO大小
-	glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices) + sizeof(instance_colors) + sizeof(instance_positions), NULL, GL_STATIC_DRAW);
-	//個別設定存入的參數值，設定頂點座標
-	//用glBufferSubData可以透過offset來更新buffer-object中的資料
-	offset = 0;
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(square_vertices), square_vertices);
-	//移動buffer的offset，使接下來的顏色及座標依序存入
-	offset += sizeof(square_vertices);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_colors), instance_colors);
-	offset += sizeof(instance_colors);
-	glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(instance_positions), instance_positions);
-	offset += sizeof(instance_positions);
+	///////////////////////////	
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
 
+	glGenBuffers(1, &buffer);
+	glBindBuffer(GL_ARRAY_BUFFER, buffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertex_positions), vertex_positions, GL_STATIC_DRAW);
 
-	//指派vertex shader的輸入對應
-	//index, size, type, normalized, stride, pointer(指向第一個頂點的第一個屬性位置)
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)sizeof(square_vertices));
-	glVertexAttribPointer(2, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid *)(sizeof(square_vertices) + sizeof(instance_colors)));
-
-	//啟用頂點屬性陣列
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
-	//需要的頂點屬性,每隔一個實例更新一次屬性內容
-	//update color
-	glVertexAttribDivisor(1, 1);
-	//update position
-	glVertexAttribDivisor(2, 1);
-}
 
+	glEnable(GL_CULL_FACE);
+	glFrontFace(GL_CW);
+
+	mv_location = glGetUniformLocation(program, "mv_matrix");
+	proj_location = glGetUniformLocation(program, "proj_matrix");
+
+	//View initial
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glViewport(0, 0, 800, 600);
+	float viewportAspect = (float)800 / (float)600;
+	//fov, aspect(長寬比例), near, far
+	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
+}
 
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	static const GLfloat black[] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	glClearBufferfv(GL_COLOR, 0, black);
+	//Update shaders' input variable
+	///////////////////////////
+	static const GLfloat green[] = { 0.0f, 0.0f, 0.0f, 1.0f };
+	static const GLfloat one = 1.0f;
+	glClearBufferfv(GL_COLOR, 0, green);
+	glClearBufferfv(GL_DEPTH, 0, &one);
 
 	glUseProgram(program);
-	glBindVertexArray(square_vao);
-	//mode, 頂點陣列, 陣列大小, instance次數
-	glDrawArraysInstanced(GL_TRIANGLE_FAN, 0, 4, 4);
+
+	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
+
+	mat4 Identy_Init(1.0);
+	sf::Clock clock;
+	float currentTime = clock.getElapsedTime().asMilliseconds() * 0.00001f;
+	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
+	mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
+	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 45.0f), vec3(0.0f, 1.0f, 0.0f));
+	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
+	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
+
+	glDrawArrays(GL_TRIANGLES, 0, 36);
+	///////////////////////////	
+
 }
 
 int main(int argc, char *argv[])
@@ -223,6 +253,5 @@ int main(int argc, char *argv[])
 		Render();
 		window.display();
 	}
-
 	return 0;
 }
