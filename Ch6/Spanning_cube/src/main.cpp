@@ -136,14 +136,12 @@ void ShaderLog(GLuint shader)
 
 void init()
 {
-
-	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
 	glewInit();
 
 	//Initialize shaders
-	///////////////////////////	
+	///////////////////////////
 	program = glCreateProgram();
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
@@ -164,8 +162,8 @@ void init()
 	glAttachShader(program, fs);
 	glLinkProgram(program);
 
-	glUseProgram(program);
-	///////////////////////////	
+
+	///////////////////////////
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -190,6 +188,9 @@ void init()
 	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
 }
 
+float timer = 0, cnt = 0;
+#define DELAY 2.0
+
 void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -204,18 +205,33 @@ void Render()
 	glUseProgram(program);
 
 	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
-
 	mat4 Identy_Init(1.0);
-	sf::Clock clock;
-	float currentTime = clock.getElapsedTime().asMilliseconds() * 0.00001f;
 	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
-	mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 45.0f), vec3(0.0f, 1.0f, 0.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
+
+	sf::Clock clock;
+	float unit_time = clock.getElapsedTime().asMicroseconds();
+	clock.restart();
+	timer += unit_time;
+
+	if (timer > DELAY)
+	{
+		if (cnt == 360)
+			cnt = 0;
+		else
+			cnt += 45;
+
+		timer = 0;
+	}
+	mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
+	// float currentTime = clock.getElapsedTime().asMilliseconds() * 0.00001f;
+	// mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
+	// mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
+	// mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 45.0f), vec3(0.0f, 1.0f, 0.0f));
+	// mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
+	// glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	///////////////////////////	
 
 }
 
