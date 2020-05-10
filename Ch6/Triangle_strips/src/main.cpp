@@ -106,6 +106,7 @@ void init()
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	glewInit();
 
 	//Initialize shaders
 	///////////////////////////	
@@ -113,9 +114,9 @@ void init()
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	static std::string vss = LoadShaderSource("./Triangle/triangle.vs.glsl");
+	static std::string vss = LoadShaderSource("triangle_strips.vs.glsl");
 	const char *vsSource = vss.c_str();
-	static std::string fss = LoadShaderSource("./Triangle/triangle.fs.glsl");
+	static std::string fss = LoadShaderSource("triangle_strips.fs.glsl");
 	const char *fsSource = fss.c_str();
 	glShaderSource(vs, 1, &vsSource, NULL);
 	glShaderSource(fs, 1, &fsSource, NULL);
@@ -136,7 +137,6 @@ void init()
 
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
-	
 
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 	glEnableVertexAttribArray(0);
@@ -151,7 +151,7 @@ void Render()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
+	static const GLfloat green[] = { 0.0f, 0.0f, 0.0f, 1.0f };
 	static const GLfloat one = 1.0f;
 	glClearBufferfv(GL_COLOR, 0, green);
 	glClearBufferfv(GL_DEPTH, 0, &one);
@@ -161,10 +161,10 @@ void Render()
 	mat4 Identy_Init(1.0);
 	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
 
-	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_positions), triangle_positions, GL_STATIC_DRAW);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	// glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_positions), triangle_positions, GL_STATIC_DRAW);
+	// glDrawArrays(GL_TRIANGLES, 0, 6);
 
-	//TODO: 換位置在同畫面
+	//換位置在同畫面
 	glBufferData(GL_ARRAY_BUFFER, sizeof(triangle_strips_positions), triangle_strips_positions, GL_STATIC_DRAW);
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 6);
 
