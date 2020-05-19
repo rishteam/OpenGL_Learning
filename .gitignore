@@ -6,8 +6,13 @@ build/*
 *.out
 
 # macOS
+
 .DS_Store
 
 build/
 
 .vscode/*
+
+# clion
+.idea/
+cmake-build-debug/

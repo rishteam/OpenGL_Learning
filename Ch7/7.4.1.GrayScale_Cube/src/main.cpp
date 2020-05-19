@@ -1,5 +1,21 @@
-#include "../../Include/Common.h"
-#include "../../Include/viewmanager.h"
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <iterator>
+
+#include "shader_compile.h"
+
+#include <GL/glew.h>
+//OpenGL Mathematics
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+#include "glm/gtx/rotate_vector.hpp"
+
+#include <SFML/Audio.hpp>
+#include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
+#include <SFML/OpenGL.hpp>
 
 using namespace glm;
 using namespace std;
@@ -29,7 +45,6 @@ GLuint			FBO;
 GLuint			depthRBO;
 GLuint			FBODataTexture;
 
-ViewManager		m_camera;
 
 static const GLfloat vertex_positions[] =
 {
@@ -90,24 +105,25 @@ static const GLfloat window_positions[] =
 	1.0f,1.0f,1.0f,1.0f
 };
 
-void My_Init()
+void init()
 {
 	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LEQUAL);
+	glewInit();
 
 	//Initialize shader
-	///////////////////////////	
+	///////////////////////////
 	program = glCreateProgram();
 
 	GLuint vs = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-	char** vsSource = LoadShaderSource("./7.4.1.GrayScale_Cube/spinning_cube.vs.glsl");
-	char** fsSource = LoadShaderSource("./7.4.1.GrayScale_Cube/spinning_cube.fs.glsl");
-	glShaderSource(vs, 1, vsSource, NULL);
-	glShaderSource(fs, 1, fsSource, NULL);
-	FreeShaderSource(vsSource);
-	FreeShaderSource(fsSource);
+	static std::string vss = LoadShaderSource("./spinning_cube.vs.glsl");
+	const char *vsSource = vss.c_str();
+	static std::string fss = LoadShaderSource("./spinning_cube.fs.glsl");
+	const char *fsSource = fss.c_str();
+	glShaderSource(vs, 1, &vsSource, NULL);
+	glShaderSource(fs, 1, &fsSource, NULL);
 	glCompileShader(vs);
 	glCompileShader(fs);
 	ShaderLog(vs);
@@ -117,7 +133,7 @@ void My_Init()
 	glAttachShader(program, vs);
 	glAttachShader(program, fs);
 	glLinkProgram(program);
-	
+
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
 
@@ -130,19 +146,19 @@ void My_Init()
 
 	mv_location = glGetUniformLocation(program, "mv_matrix");
 	proj_location = glGetUniformLocation(program, "proj_matrix");
-	///////////////////////////	
+	///////////////////////////
 	//Initialize shader2
-	///////////////////////////	
+	///////////////////////////
 	program2 = glCreateProgram();
 
 	GLuint vs2 = glCreateShader(GL_VERTEX_SHADER);
 	GLuint fs2 = glCreateShader(GL_FRAGMENT_SHADER);
-	char** vsSource2 = LoadShaderSource("./7.4.1.GrayScale_Cube/gray.vs.glsl");
-	char** fsSource2 = LoadShaderSource("./7.4.1.GrayScale_Cube/gray.fs.glsl");
-	glShaderSource(vs2, 1, vsSource2, NULL);
-	glShaderSource(fs2, 1, fsSource2, NULL);
-	FreeShaderSource(vsSource2);
-	FreeShaderSource(fsSource2);
+	static std::string vss2 = LoadShaderSource("./gray.vs.glsl");
+	const char *vsSource2 = vss2.c_str();
+	static std::string fss2 = LoadShaderSource("./gray.fs.glsl");
+	const char *fsSource2 = fss2.c_str();
+	glShaderSource(vs2, 1, &vsSource2, NULL);
+	glShaderSource(fs2, 1, &fsSource2, NULL);
 	glCompileShader(vs2);
 	glCompileShader(fs2);
 	ShaderLog(vs2);
@@ -165,23 +181,24 @@ void My_Init()
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-
+	//create FBO
 	glGenFramebuffers(1, &FBO);
 
-	//////////////////////////////////////////////////////////////////////////
-	/////////Create RBO and Render Texture in Reshape Function////////////////
-	//////////////////////////////////////////////////////////////////////////
+	glViewport(0, 0, 800, 600);
+	float viewportAspect = (float)800 / (float)600;
+	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
 }
 
-// GLUT callback. Called to draw the scene.
-void My_Display()
+float timer = 0, cnt = 0;
+#define DELAY 2.0
+void Render()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	//Update cube shader
-	///////////////////////////	
+	///////////////////////////
 	static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
 	static const GLfloat one = 1.0f;
 	glClearBufferfv(GL_COLOR, 0, green);
@@ -193,15 +210,31 @@ void My_Display()
 	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
 
 	mat4 Identy_Init(1.0);
-	float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
+	// auto currentTime = clock.getElapsedTimeglGetUniformLocation().asMicroseconds();
+	// float currentTime = 0.005f;
+	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
 	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
-	mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 45.0f), vec3(0.0f, 1.0f, 0.0f));
-	mv_matrix = rotate(mv_matrix, deg2rad(currentTime * 81.0f), vec3(1.0f, 0.0f, 0.0f));
+	// mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
+
+	sf::Clock clock; // starts the clock
+	float unit_time = clock.getElapsedTime().asMicroseconds();
+	clock.restart();
+	timer += unit_time;
+
+	if (timer > DELAY)
+	{
+		if (cnt == 360)
+			cnt = 0;
+		else
+			cnt += 45;
+
+		timer = 0;
+	}
+	mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
+
 	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 
 	glDrawArrays(GL_TRIANGLES, 0, 36);
-	///////////////////////////	
 
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -214,11 +247,10 @@ void My_Display()
 	glUseProgram(program2);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
 
-	glutSwapBuffers();
 }
 
 //Call to resize the window
-void My_Reshape(int width, int height)
+void Reshape(int width, int height)
 {
 	glViewport(0, 0, width, height);
 
@@ -246,53 +278,39 @@ void My_Reshape(int width, int height)
 
 }
 
-//Timer event
-void My_Timer(int val)
-{
-	timer_cnt++;
-	glutPostRedisplay();
-	glutTimerFunc(timer_speed, My_Timer, val);
-
-}
-
-void My_Mouse_Moving(int x, int y) {
-	m_camera.mouseMoveEvent(x, y);
-}
 
 int main(int argc, char *argv[])
 {
-	// Initialize GLUT and GLEW, then create a window.
-	////////////////////
-	glutInit(&argc, argv);
-#ifdef _MSC_VER
-	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-#else
-	glutInitDisplayMode(GLUT_3_2_CORE_PROFILE | GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH);
-#endif
+	bool running = true;
+	sf::Clock deltaClock;
+	sf::Event event;
+	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
+	window.setVerticalSyncEnabled(true);
+	window.setActive(true);
+	// Init
+	init();
 
-	glutInitWindowPosition(100, 100);
-	glutInitWindowSize(600, 600);
-	glutCreateWindow("GrayScale"); // You cannot use OpenGL functions before this line; The OpenGL context must be created first by glutCreateWindow()!
-#ifdef _MSC_VER
-	glewInit();
-#endif
-
-	//Print debug information 
-	DumpInfo();
-	////////////////////
-
-	//Call custom initialize function
-	My_Init();
-
-	//Register GLUT callback functions
-	////////////////////
-	glutDisplayFunc(My_Display);
-	glutReshapeFunc(My_Reshape);
-	glutTimerFunc(timer_speed, My_Timer, 0);
-	////////////////////
-
-	// Enter main event loop.
-	glutMainLoop();
+	while (running)
+	{
+		// show OpenGL version number
+		// sf::ContextSettings settings = window.getSettings();
+		// std::cout << "OpenGL version:" << settings.majorVersion << "." << settings.minorVersion << std::endl;
+		while (window.pollEvent(event))
+		{
+			// ImGui::SFML::ProcessEvent(event);
+			if (event.type == sf::Event::Closed)
+			{
+				running = false;
+			}
+			else if (event.type == sf::Event::Resized)
+			{
+				// adjust the viewport when the window is resized
+				Reshape(event.size.width, event.size.height);
+			}
+		}
+		Render();
+		window.display();
+	}
 
 	return 0;
 }

@@ -1,12 +1,12 @@
-#version 410
+#version 460
 
 layout(location = 0) in vec2 position;
 layout(location = 1) in vec2 texcoord;
 
-out VS_OUT        
-{                 
+out VS_OUT
+{
     vec2 texcoord;
-} vs_out; 
+} vs_out;
 
 void main()
 {

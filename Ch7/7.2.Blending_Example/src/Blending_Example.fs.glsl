@@ -1,4 +1,4 @@
-#version 410
+#version 460
 uniform sampler2D tex; 
 out vec4 color; 
 uniform int shader_now; 

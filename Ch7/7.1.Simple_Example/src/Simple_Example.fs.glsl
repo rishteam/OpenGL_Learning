@@ -16,7 +16,7 @@ void main(void)
 
 	color = texture(tex, coord);		//table 07-05
 
-	vec4 red = vec4(1, 0, 0, 1);
-	color = texture(tex, coord) * red;		//table 07-07
-	color = texture(tex, coord) + red;		//table 07-08
+	// vec4 red = vec4(1, 0, 0, 1);
+	// color = texture(tex, coord) * red;		//table 07-07
+	// color = texture(tex, coord) + red;		//table 07-08
 }
