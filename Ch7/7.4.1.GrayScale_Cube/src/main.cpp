@@ -146,6 +146,9 @@ void init()
 
 	mv_location = glGetUniformLocation(program, "mv_matrix");
 	proj_location = glGetUniformLocation(program, "proj_matrix");
+
+
+
 	///////////////////////////
 	//Initialize shader2
 	///////////////////////////
@@ -181,11 +184,15 @@ void init()
 
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
+
 	//create FBO
 	glGenFramebuffers(1, &FBO);
 
+	//view position
+	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 	glViewport(0, 0, 800, 600);
 	float viewportAspect = (float)800 / (float)600;
+	//fov, aspect(長寬比例), near, far
 	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
 }
 
@@ -193,50 +200,49 @@ float timer = 0, cnt = 0;
 #define DELAY 2.0
 void Render()
 {
+	//將以下東西綁到FBO上
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//Update cube shader
+		///////////////////////////
+		static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
+		static const GLfloat one = 1.0f;
+		glClearBufferfv(GL_COLOR, 0, green);
+		glClearBufferfv(GL_DEPTH, 0, &one);
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(program);
 
-	//Update cube shader
-	///////////////////////////
-	static const GLfloat green[] = { 0.0f, 0.25f, 0.0f, 1.0f };
-	static const GLfloat one = 1.0f;
-	glClearBufferfv(GL_COLOR, 0, green);
-	glClearBufferfv(GL_DEPTH, 0, &one);
+		glBindVertexArray(vao);
+		glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
 
-	glUseProgram(program);
+		mat4 Identy_Init(1.0);
+		// auto currentTime = clock.getElapsedTimeglGetUniformLocation().asMicroseconds();
+		// float currentTime = 0.005f;
+		// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
+		mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
+		// mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
 
-	glBindVertexArray(vao);
-	glUniformMatrix4fv(proj_location, 1, GL_FALSE, &proj_matrix[0][0]);
+		sf::Clock clock; // starts the clock
+		float unit_time = clock.getElapsedTime().asMicroseconds();
+		clock.restart();
+		timer += unit_time;
 
-	mat4 Identy_Init(1.0);
-	// auto currentTime = clock.getElapsedTimeglGetUniformLocation().asMicroseconds();
-	// float currentTime = 0.005f;
-	// float currentTime = glutGet(GLUT_ELAPSED_TIME) * 0.001f;
-	mat4 mv_matrix = translate(Identy_Init, vec3(0.0f, 0.0f, -4.0f));
-	// mv_matrix = translate(mv_matrix, vec3(sinf(2.1f * currentTime) * 0.5f, cosf(1.7f * currentTime) * 0.5f, sinf(1.3f * currentTime) * cosf(1.5f * currentTime) * 2.0f));
+		if (timer > DELAY)
+		{
+			if (cnt == 360)
+				cnt = 0;
+			else
+				cnt += 45;
 
-	sf::Clock clock; // starts the clock
-	float unit_time = clock.getElapsedTime().asMicroseconds();
-	clock.restart();
-	timer += unit_time;
+			timer = 0;
+		}
+		mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
 
-	if (timer > DELAY)
-	{
-		if (cnt == 360)
-			cnt = 0;
-		else
-			cnt += 45;
+		glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
 
-		timer = 0;
-	}
-	mv_matrix = rotate(mv_matrix, deg2rad(cnt), vec3(1.0f, 0.0f, 0.0f));
-
-	glUniformMatrix4fv(mv_location, 1, GL_FALSE, &mv_matrix[0][0]);
-
-	glDrawArrays(GL_TRIANGLES, 0, 36);
-
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	//結束點
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
@@ -249,7 +255,7 @@ void Render()
 
 }
 
-//Call to resize the window
+//Reshape後要重新設定
 void Reshape(int width, int height)
 {
 	glViewport(0, 0, width, height);
@@ -257,10 +263,7 @@ void Reshape(int width, int height)
 	float viewportAspect = (float)width / (float)height;
 	proj_matrix = perspective(deg2rad(50.0f), viewportAspect, 0.1f, 100.0f);
 
-	glDeleteRenderbuffers(1, &depthRBO);
-	glDeleteTextures(1, &FBODataTexture);
-	glGenRenderbuffers(1, &depthRBO);
-	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
+	glDindRenderbuffer(GL_RENDERBUFFER, depthRBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
 
 	glGenTextures(1, &FBODataTexture);
@@ -269,7 +272,10 @@ void Reshape(int width, int height)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTeeleteRenderbuffers(1, &depthRBO);
+	glDeleteTextures(1, &FBODataTexture);
+	glGenRenderbuffers(1, &depthRBO);
+	glBxParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);

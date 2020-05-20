@@ -1,23 +1,24 @@
-#version 410
-uniform sampler2D tex; 
-out vec4 color; 
-uniform int shader_now; 
+#version 460
+
+uniform sampler2D tex;
+out vec4 color;
+uniform int shader_now;
 in VS_OUT
 {
-vec2 texcoord; 
+	vec2 texcoord;
 } fs_in;
 
-float sigma_e = 2.0f; 
-float sigma_r = 2.8f; 
-float phi = 3.4f; 
-float tau = 0.99f; 
-float twoSigmaESquared = 2.0 * sigma_e * sigma_e;		
-float twoSigmaRSquared = 2.0 * sigma_r * sigma_r;		
-int halfWidth = int(ceil(2.0 * sigma_r)); 
-vec2 img_size = vec2(1024, 611); 
-int nbins = 8; 
+float sigma_e = 2.0f;
+float sigma_r = 2.8f;
+float phi = 3.4f;
+float tau = 0.99f;
+float twoSigmaESquared = 2.0 * sigma_e * sigma_e;
+float twoSigmaRSquared = 2.0 * sigma_r * sigma_r;
+int halfWidth = int(ceil(2.0 * sigma_r));
+vec2 img_size = vec2(1024, 611);
+int nbins = 8;
 
-#define SORT_SIZE  49  
+#define SORT_SIZE  49
 #define MASK_SIZE  7
 
 void main(void)
@@ -47,7 +48,7 @@ void main(void)
 			color /= n;
 			break;
 		}
-		case(2): 
+		case(2):
 		{
 
 			int half_size = int(sqrt(SORT_SIZE)/2);
@@ -139,30 +140,30 @@ void main(void)
 		}
 		case(6):
 		{
-			vec2 sum = vec2(0.0); 
-			vec2 norm = vec2(0.0); 
-			int kernel_count = 0; 
+			vec2 sum = vec2(0.0);
+			vec2 norm = vec2(0.0);
+			int kernel_count = 0;
 			for (int i = -halfWidth; i <= halfWidth; ++i) {
-	
+
 					for (int j = -halfWidth; j <= halfWidth; ++j) {
-			
-							float d = length(vec2(i, j)); 
-							vec2 kernel = vec2(exp(-d * d / twoSigmaESquared), 
-								exp(-d * d / twoSigmaRSquared)); 
-							vec4 c = texture(tex, fs_in.texcoord + vec2(i, j) / img_size); 
-							vec2 L = vec2(0.299 * c.r + 0.587 * c.g + 0.114 * c.b); 
-				
-							norm += 2.0 * kernel; 
-							sum += kernel * L; 
+
+							float d = length(vec2(i, j));
+							vec2 kernel = vec2(exp(-d * d / twoSigmaESquared),
+								exp(-d * d / twoSigmaRSquared));
+							vec4 c = texture(tex, fs_in.texcoord + vec2(i, j) / img_size);
+							vec2 L = vec2(0.299 * c.r + 0.587 * c.g + 0.114 * c.b);
+
+							norm += 2.0 * kernel;
+							sum += kernel * L;
 					}
 			}
-			sum /= norm; 
+			sum /= norm;
 
-			float H = 100.0 * (sum.x - tau * sum.y); 
-			float edge = (H > 0.0) ? 1.0 : 2.0 * smoothstep(-2.0, 2.0, phi * H); 
+			float H = 100.0 * (sum.x - tau * sum.y);
+			float edge = (H > 0.0) ? 1.0 : 2.0 * smoothstep(-2.0, 2.0, phi * H);
 
-			color = vec4(edge, edge, edge, 1.0); 
-			break; 
+			color = vec4(edge, edge, edge, 1.0);
+			break;
 		}
 		case(7):
 		{
