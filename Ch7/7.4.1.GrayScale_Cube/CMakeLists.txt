@@ -8,7 +8,9 @@ set(CMAKE_BUILD_TYPE Debug) # Debug Release
 add_executable(ch7
     src/main.cpp
     src/shader_compile.h
+    src/ViewManager.cpp
 )
+target_include_directories(ch7 PRIVATE ${PROJECT_SOURCE_DIR}/include)
 
 if(APPLE)
     set(SFML_STATIC_LIBRARIES False)
@@ -58,8 +60,8 @@ target_link_libraries(ch7
 
 if(MSYS)
 target_link_libraries(ch7
-    -static-libgcc -static-libstdc++ -lwsock32 -lws2_32
-    -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
+    # -static-libgcc -static-libstdc++ -lwsock32 -lws2_32
+    # -Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive
     # -mconsole / -mwindows
 )
 endif()

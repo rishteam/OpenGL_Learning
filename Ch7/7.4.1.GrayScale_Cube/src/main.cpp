@@ -4,6 +4,7 @@
 #include <iterator>
 
 #include "shader_compile.h"
+#include "ViewManager.h"
 
 #include <GL/glew.h>
 //OpenGL Mathematics
@@ -30,7 +31,9 @@ struct
 GLubyte timer_cnt = 0;
 unsigned int timer_speed = 16;
 
-GLuint          vao;
+ViewManager m_camara;
+
+GLuint vao;
 GLuint          buffer;
 GLint           mv_location;
 GLint           proj_location;
@@ -148,7 +151,6 @@ void init()
 	proj_location = glGetUniformLocation(program, "proj_matrix");
 
 
-
 	///////////////////////////
 	//Initialize shader2
 	///////////////////////////
@@ -189,11 +191,11 @@ void init()
 	glGenFramebuffers(1, &FBO);
 
 	//view position
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glViewport(0, 0, 800, 600);
-	float viewportAspect = (float)800 / (float)600;
+	// glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	// glViewport(0, 0, 800, 600);
+	// float viewportAspect = (float)800 / (float)600;
 	//fov, aspect(長寬比例), near, far
-	proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
+	// proj_matrix = perspective(deg2rad(45.0f), viewportAspect, 0.1f, 100.0f);
 }
 
 float timer = 0, cnt = 0;
@@ -258,12 +260,21 @@ void Render()
 //Reshape後要重新設定
 void Reshape(int width, int height)
 {
+
+	float aspect = width * 1.0f / height;
+	m_camara.SetWindowSize(width, height);
 	glViewport(0, 0, width, height);
-
-	float viewportAspect = (float)width / (float)height;
-	proj_matrix = perspective(deg2rad(50.0f), viewportAspect, 0.1f, 100.0f);
-
-	glDindRenderbuffer(GL_RENDERBUFFER, depthRBO);
+	// float viewportAspect = (float)width / (float)height;
+	// m_camara.SetWindowSize(width, height);
+	// proj_matrix = perspective(deg2rad(50.0f), viewportAspect, 0.1f, 1000.0f);
+	// m_camara.GetModelMatrix();
+	// m_camara.GetViewMatrix();
+	// m_camara.GetProjectionMatrix(viewportAspect);
+	m_camara.GetModelViewProjectionMatrix(aspect);
+	glDeleteRenderbuffers(1, &depthRBO);
+	glDeleteTextures(1, &FBODataTexture);
+	glGenRenderbuffers(1, &depthRBO);
+	glBindRenderbuffer(GL_RENDERBUFFER, depthRBO);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT32, width, height);
 
 	glGenTextures(1, &FBODataTexture);
@@ -272,16 +283,12 @@ void Reshape(int width, int height)
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	glTeeleteRenderbuffers(1, &depthRBO);
-	glDeleteTextures(1, &FBODataTexture);
-	glGenRenderbuffers(1, &depthRBO);
-	glBxParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
 	glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRBO);
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, FBODataTexture, 0);
-
 }
 
 

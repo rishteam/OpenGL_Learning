@@ -149,7 +149,7 @@ int main(int argc, char *argv[])
 	GL_ONE_MINUS_SRC_ALPHA    = 來源顏色×(1-來源顏色的Alpha值)
 	*/
 	sfactor = GL_SRC_ALPHA;
-	dfactor = GL_SRC_ALPHA;
+	dfactor = GL_ONE_MINUS_SRC_ALPHA;
 
 	bool running = true;
 	sf::Clock deltaClock;
