@@ -1,13 +1,14 @@
+#include <GL/glew.h>
+#include <SFML/OpenGL.hpp>
 #include <SFML/Audio.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
-#include <SFML/OpenGL.hpp>
 #include <imgui.h>
 #include <imgui-SFML.h>
 
 using namespace std;
 
-void My_Display()
+void update()
 {
 	///////////////////////////
 	glColor3f(1.0, 0.0, 0.0);
@@ -22,6 +23,12 @@ void My_Display()
 int main(int argc, char *argv[])
 {
 	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		return 1;
+	}
 	window.setVerticalSyncEnabled(true);
 	ImGui::SFML::Init(window);
 	sf::Clock deltaClock;
@@ -59,7 +66,7 @@ int main(int argc, char *argv[])
 		/////////////////////////////////////////////////////////////////
 		// Draw
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		My_Display();
+		update();
 		// SFML draws
 		window.pushGLStates();
 			window.draw(cir);

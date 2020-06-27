@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.6)
 
-project(ch4_example)
+project(ch4_3)
 
-add_executable(ch4
+add_executable(ch4_3
     4.2.Shader.cpp
 )
 # Add SFML
@@ -16,7 +16,7 @@ include_directories(
     ${GLUT_INCLUDE_DIRS}
 )
 
-target_link_libraries(ch4
+target_link_libraries(ch4_3
     ${OPENGL_LIBRARIES}
     sfml-system sfml-window sfml-graphics sfml-network sfml-audio
     GLUT::GLUT

@@ -79,7 +79,6 @@ void My_Init()
 	glEnableVertexAttribArray(0);
 }
 
-// GLUT callback. Called to draw the scene.
 void My_Display()
 {
 	//清除暫存器

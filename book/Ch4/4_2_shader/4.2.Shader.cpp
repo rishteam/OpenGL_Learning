@@ -99,6 +99,12 @@ void My_Display()
 int main(int argc, char *argv[])
 {
 	sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL");
+	GLenum err = glewInit();
+	if (GLEW_OK != err)
+	{
+		fprintf(stderr, "Error: %s\n", glewGetErrorString(err));
+		return 1;
+	}
 	window.setVerticalSyncEnabled(true);
 	//check close
 	bool running = true;
