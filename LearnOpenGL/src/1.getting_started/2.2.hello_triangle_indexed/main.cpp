@@ -75,7 +75,7 @@ uint32_t LinkShaderProgram(uint32_t vertex, uint32_t fragment)
 float vertices[] = {
     0.5f, 0.5f, 0.0f,  // 右上角
     0.5f, -0.5f, 0.0f, // 右下角
-    0.5f, -0.5f, 0.0f, // 右下角
+    -0.5f, -0.5f, 0.0f, // 左下角
     -0.5f, 0.5f, 0.0f  // 左上角
 };
 
@@ -146,7 +146,7 @@ int main()
         GL_FLOAT,          // type
         GL_FALSE,          // normalize?
         3 * sizeof(float), // stride
-        nullptr            // offsets
+        (void *)0          // offsets
     );
     glEnableVertexAttribArray(aPos_attrib_index);
 
