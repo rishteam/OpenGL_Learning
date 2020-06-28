@@ -107,11 +107,11 @@ int main()
     {
         program = LinkShaderProgram(vertexShader, fragmentShader);
         glUseProgram(program);
+        glDeleteShader(vertexShader);
+        glDeleteShader(fragmentShader);
     }
     else
     {
-        if(vertexShader) glDeleteShader(vertexShader);
-        if(fragmentShader) glDeleteShader(fragmentShader);
         return 1;
     }
     // Load vertices
@@ -124,15 +124,19 @@ int main()
     glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    // glBindAttribLocation(program, 0, "aPos");
+    uint32_t aPos_attrib_index = glGetAttribLocation(program, "aPos");
+    printf("aPos location = %d\n", aPos_attrib_index);
     glVertexAttribPointer(
-        0,                   // Location
-        3,                   // size
-        GL_FLOAT,            // type
-        GL_FALSE,            // normalize?
-        3 * sizeof(float),   // stride
-        nullptr              // offsets
+        aPos_attrib_index, // Location
+        3,                 // size
+        GL_FLOAT,          // type
+        GL_FALSE,          // normalize?
+        3 * sizeof(float), // stride
+        nullptr            // offsets
     );
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(aPos_attrib_index);
 
     sf::Clock deltaClock;
     bool running = true;
@@ -157,8 +161,8 @@ int main()
         glUseProgram(program);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
-
         glBindVertexArray(0);
+
         window.pushGLStates();
         {
             ImGui::SFML::Render(window);
@@ -168,6 +172,9 @@ int main()
     }
 
     // release resources...
+    glDeleteVertexArrays(1, &vao);
+    glDeleteBuffers(1, &vbo);
+    glDeleteProgram(program);
 
     return 0;
 }
