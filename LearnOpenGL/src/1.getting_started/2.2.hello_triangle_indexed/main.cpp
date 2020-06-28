@@ -8,6 +8,8 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
+#define WIRE_MODE 0
+
 void init()
 {
     setvbuf(stdin, nullptr, _IONBF, 0);
@@ -166,14 +168,20 @@ int main()
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::Begin("hello, world");
+        static bool wire_mode = false;
+        ImGui::Checkbox("Wire Mode", &wire_mode);
         ImGui::End();
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glUseProgram(program);
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);
+
+        if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
         window.pushGLStates();
         {
