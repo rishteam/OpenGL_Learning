@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(2.3.lab1)
-add_executable(${PROJECT_NAME} main.cpp shader.cpp)
+add_executable(${PROJECT_NAME} main.cpp shader.cpp buffer.cpp)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 
 # Link SFML

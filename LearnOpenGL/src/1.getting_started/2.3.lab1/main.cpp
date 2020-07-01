@@ -9,6 +9,7 @@
 #include <imgui-SFML.h>
 
 #include "shader.h"
+#include "buffer.h"
 
 #define WIRE_MODE 0
 
@@ -65,10 +66,13 @@ int main()
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
     // VBO
-    uint32_t vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    // TODO: This will be inside the VertexArray
+    BufferLayout bufferLayout = {
+        {ShaderDataType::Float3, "aPos"},
+        {ShaderDataType::Float3, "color"}};
+    VertexBuffer vertex(vertices, sizeof(vertices));
+    vertex.setLayout(bufferLayout);
+    vertex.bind();
     // EBO
     uint32_t ebo;
     glGenBuffers(1, &ebo);
@@ -135,6 +139,6 @@ int main()
 
     // release resources...
     glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
+    // glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ebo);
 }
