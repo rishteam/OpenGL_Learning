@@ -65,19 +65,18 @@ int main()
     uint32_t vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
+    // TODO: These will be inside the VertexArray
     // VBO
-    // TODO: This will be inside the VertexArray
     BufferLayout bufferLayout = {
         {ShaderDataType::Float3, "aPos"},
-        {ShaderDataType::Float3, "color"}};
+        {ShaderDataType::Float3, "color"}
+    };
     VertexBuffer vertex(vertices, sizeof(vertices));
     vertex.setLayout(bufferLayout);
     vertex.bind();
     // EBO
-    uint32_t ebo;
-    glGenBuffers(1, &ebo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+    IndexBuffer index(indices, sizeof(indices)/sizeof(uint32_t));
+    index.bind();
 
     // Specify Vertex Attribute
     // glBindAttribLocation(program, 0, "aPos");
@@ -139,6 +138,4 @@ int main()
 
     // release resources...
     glDeleteVertexArrays(1, &vao);
-    // glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ebo);
 }

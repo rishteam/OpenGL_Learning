@@ -137,7 +137,7 @@ private:
 class IndexBuffer
 {
 public:
-    IndexBuffer(float *indices, uint32_t count);
+    IndexBuffer(uint32_t *indices, uint32_t count);
     ~IndexBuffer();
 
     void bind() const;
