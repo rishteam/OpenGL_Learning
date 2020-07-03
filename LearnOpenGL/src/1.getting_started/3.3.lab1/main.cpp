@@ -31,8 +31,6 @@ void main()
         sin(rotateDeg),  cos(rotateDeg)
     );
     vec2 pos = rot * aPos.xy;
-    // float x = aPos.x * cos(rotateDeg) - aPos.y * sin(rotateDeg);
-    // float y = aPos.x * sin(rotateDeg) + aPos.y * cos(rotateDeg);
     gl_Position = vec4(pos.x, pos.y, aPos.z, 1.0) + posOffset;
 }
 )glsl";
