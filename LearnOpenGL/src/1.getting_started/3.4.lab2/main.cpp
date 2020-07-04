@@ -94,6 +94,21 @@ int main()
 
             auto [x, y] = sf::Mouse::getPosition(window);
             ImGui::Text("%d, %d", x, y);
+
+            static float color[4];
+            ImGui::ColorEdit4("Color", color, ImGuiColorEditFlags_Float);
+
+            // Square offset
+            static float off[4];
+            ImGui::SliderFloat4("Offset", off, -1, 1);
+            // Rotate
+            static float rotate_degree = 0.f;
+            ImGui::SliderFloat("Rotate", &rotate_degree, -360, 360);
+            if (ImGui::Button("Reset"))
+            {
+                std::fill(off, off + 4, 0.f);
+                rotate_degree = 0.f;
+            }
         ImGui::End();
 
         // Update
@@ -102,9 +117,12 @@ int main()
         if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         shader.bind();
+        shader.setFloat4("uColor", glm::vec4(color[0], color[1], color[2], color[3]));
+        shader.setFloat("rotate", rotate_degree);
+        shader.setFloat4("posOffset", glm::vec4(off[0], off[1], off[2], off[3]));
+        // shader.setFloat
         vertexArray.bind();
         glDrawElements(GL_TRIANGLES, index.getCount(), GL_UNSIGNED_INT, 0);
-        // glDrawArrays(GL_TRIANGLES, 0, 3);
         vertexArray.unbind();
         shader.unbind();
 

@@ -14,6 +14,9 @@ target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 # imgui-SFML
 find_package(ImGui-SFML REQUIRED)
 target_link_libraries(${PROJECT_NAME} ImGui-SFML::ImGui-SFML)
-
+# glm
+find_package(glm REQUIRED)
+target_link_libraries(${PROJECT_NAME} glm)
+# Copy shader files
 file(GLOB SHADER_FILES "*.fs" "*.vs")
 file(COPY ${SHADER_FILES} DESTINATION ${CMAKE_BINARY_DIR})
