@@ -10,3 +10,5 @@ add_subdirectory(3.1.shader_uniform)
 
 add_subdirectory(3.3.lab1)
 add_subdirectory(3.4.lab2)
+
+add_subdirectory(4.1.texture)
