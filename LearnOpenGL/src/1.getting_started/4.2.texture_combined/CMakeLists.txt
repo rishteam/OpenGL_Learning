@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(4.1.texture)
+project(4.2.texture_combined)
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 

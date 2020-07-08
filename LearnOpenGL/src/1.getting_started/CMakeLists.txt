@@ -12,3 +12,4 @@ add_subdirectory(3.3.lab1)
 add_subdirectory(3.4.lab2)
 
 add_subdirectory(4.1.texture)
+add_subdirectory(4.2.texture_combined)

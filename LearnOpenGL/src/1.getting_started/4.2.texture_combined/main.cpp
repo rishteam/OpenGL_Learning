@@ -1,4 +1,5 @@
 #include <iostream>
+#include <functional>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 
@@ -40,13 +41,17 @@ out vec4 FragColor;
 in vec2 TexCoord;
 in vec3 VertColor;
 
-uniform sampler2D texture1;
+uniform sampler2D tex1;
+uniform sampler2D tex2;
 
 uniform vec4 fColor;
+uniform float fMix;
 
 void main()
 {
-    FragColor = texture(texture1, TexCoord) * fColor;
+    vec4 resultColor = mix(texture(tex1, TexCoord), texture(tex2, TexCoord), fMix) * fColor;
+    // vec4 resultColor = texture(tex1, TexCoord) * fColor;
+    FragColor = resultColor;
 }
 )glsl";
 
@@ -122,6 +127,9 @@ int main()
     window.setActive(true);
     init();
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     // Load shader
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
@@ -163,23 +171,32 @@ int main()
     uint32_t aTexCoord = glGetAttribLocation(program, "aTexCoord");
     glVertexAttribPointer(aTexCoord, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6*sizeof(float)));
     glEnableVertexAttribArray(aTexCoord);
-    printf("aPos = %d, aTexCoord = %d\n", aPos, aTexCoord);
 
     // Texture
-    sf::Image wall;
-    wall.loadFromFile("wall.jpg");
-    wall.flipVertically();
+    auto LoadTexture = [&](std::string path) {
+        sf::Image img;
+        img.loadFromFile(path);
+        img.flipVertically();
+        // generate a texture
+        uint32_t texture;
+        glGenTextures(1, &texture);
+        glBindTexture(GL_TEXTURE_2D, texture);
+        // texture parameter
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)img.getPixelsPtr());
+        glGenerateMipmap(GL_TEXTURE_2D);
+        return texture;
+    };
 
-    uint32_t texture;
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-    // texture parameter
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, wall.getSize().x, wall.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)wall.getPixelsPtr());
-    glGenerateMipmap(GL_TEXTURE_2D);
+    uint32_t wall_tex = LoadTexture("wall.jpg");
+    uint32_t lambda_tex = LoadTexture("lambda.png");
+
+    glUseProgram(program);
+    glUniform1i(glGetUniformLocation(program, "tex1"), 0);
+    glUniform1i(glGetUniformLocation(program, "tex2"), 1);
 
     sf::Clock deltaClock;
     bool running = true;
@@ -200,27 +217,45 @@ int main()
             static bool wire_mode = false;
             ImGui::Checkbox("Wire Mode", &wire_mode);
 
-            static float color[4];
-            ImGui::ColorEdit4("Color", color, ImGuiColorEditFlags_Float);
-        ImGui::End();
+            static float tintColor[4] = {1.f, 0.f, 0.f, 1.f};
+            ImGui::ColorEdit4("Tint", tintColor, ImGuiColorEditFlags_Float);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+            static float mix;
+            ImGui::SliderFloat("Mix", &mix, 0.f, 1.f);
 
-        if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            static float bgColor[4];
+            ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
+            ImGui::End();
 
-        glBindTexture(GL_TEXTURE_2D, texture);
-        glUseProgram(program);
-        static int colorLocation = glGetUniformLocation(program, "fColor");
-        glUniform4f(colorLocation, color[0], color[1], color[2], color[3]);
-        glBindVertexArray(vao);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-        glBindVertexArray(0);
+            glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            if (wire_mode)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        window.pushGLStates();
-        {
-            ImGui::SFML::Render(window);
+            // 將 wall_tex 綁到 GL_TEXTURE0
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, wall_tex);
+            // 將 lambda_tex 綁到 GL_TEXTURE1
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, lambda_tex);
+            // Upload uniforms
+            glUseProgram(program);
+            static int colorLocation = glGetUniformLocation(program, "fColor");
+            glUniform4f(colorLocation, tintColor[0], tintColor[1], tintColor[2], tintColor[3]);
+            static int mixLocation = glGetUniformLocation(program, "fMix");
+            glUniform1f(mixLocation, mix);
+            //
+            glBindVertexArray(vao);
+            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+            glBindVertexArray(0);
+
+            if (wire_mode)
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+            window.pushGLStates();
+            {
+                ImGui::SFML::Render(window);
         }
         window.popGLStates();
         window.display();
