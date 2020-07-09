@@ -50,8 +50,7 @@ uniform float fMix;
 
 void main()
 {
-    vec4 resultColor = mix(texture(tex1, TexCoord), texture(tex2, TexCoord), fMix) * fColor;
-    // vec4 resultColor = texture(tex1, TexCoord) * fColor;
+    vec4 resultColor = mix(texture(tex1, TexCoord), texture(tex2, vec2(-TexCoord.x, TexCoord.y)), fMix) * fColor;
     FragColor = resultColor;
 }
 )glsl";

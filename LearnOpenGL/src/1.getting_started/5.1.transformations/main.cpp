@@ -7,6 +7,10 @@
 #include <glad/glad.h>
 #include <SFML/OpenGL.hpp>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <imgui.h>
 #include <imgui-SFML.h>
 
@@ -27,9 +31,11 @@ layout (location = 2) in vec2 aTexCoord;
 out vec3 VertColor;
 out vec2 TexCoord;
 
+uniform mat4 vTransform;
+
 void main()
 {
-    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+    gl_Position = vTransform * vec4(aPos, 1.0);
     TexCoord = aTexCoord;
     VertColor = aVertColor;
 }
@@ -109,13 +115,7 @@ uint32_t indices[] = {
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, sf::ContextSettings(
-        24, // depthBits
-        8,  // stencilBits
-        4,  // antialiasingLevel
-        4,  // majorVersion
-        4   // minorVersion
-    ));
+    sf::RenderWindow window(sf::VideoMode(800, 600), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4));
     window.setVerticalSyncEnabled(true);
     // Load OpenGL functions using glad
     if (!gladLoadGL())
@@ -214,51 +214,64 @@ int main()
         }
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("hello, world");
-            static bool wire_mode = false;
-            ImGui::Checkbox("Wire Mode", &wire_mode);
+        ImGui::Begin("5.1.transformations");
+        static bool wire_mode = false;
+        ImGui::Checkbox("Wire Mode", &wire_mode);
+        // tint
+        static float tintColor[4] = {1.f, 0.f, 0.f, 1.f};
+        ImGui::ColorEdit4("Tint", tintColor, ImGuiColorEditFlags_Float);
+        // mix
+        static float mix;
+        static sf::Clock mixClk;
+        mix = (sin(2*mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f;
+        ImGui::SliderFloat("Mix", &mix, 0.f, 1.f);
+        // background color
+        static float bgColor[4];
+        ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
+        // transform
+        glm::mat4 trans(1.0f); // identity matrix
+        static float rotate_degree = 90.f;
+        rotate_degree = 360.f * ((sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f);
+        ImGui::SliderFloat("Rotate", &rotate_degree, 0, 360);
+        trans = glm::rotate(trans, glm::radians(rotate_degree), glm::vec3(0.0, 0.0, 1.0));
 
-            static float tintColor[4] = {1.f, 0.f, 0.f, 1.f};
-            ImGui::ColorEdit4("Tint", tintColor, ImGuiColorEditFlags_Float);
+        static glm::vec3 scaler(0.5, 0.5, 0.5);
+        scaler = glm::vec3(((sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f));
+        ImGui::SliderFloat3("Scale", glm::value_ptr(scaler), 0.0f, 1.0f);
+        trans = glm::scale(trans, scaler);
+        ImGui::End();
 
-            static float mix;
-            static sf::Clock mixClk;
-            mix = (sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f;
-            ImGui::SliderFloat("Mix", &mix, 0.f, 1.f);
+        glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            static float bgColor[4];
-            ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
-            ImGui::End();
+        if (wire_mode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-            glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // 將 wall_tex 綁到 GL_TEXTURE0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall_tex);
+        // 將 lambda_tex 綁到 GL_TEXTURE1
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, lambda_tex);
+        // Upload uniforms
+        glUseProgram(program);
+        static int colorLoc = glGetUniformLocation(program, "fColor");
+        glUniform4f(colorLoc, tintColor[0], tintColor[1], tintColor[2], tintColor[3]);
+        static int mixLoc = glGetUniformLocation(program, "fMix");
+        glUniform1f(mixLoc, mix);
+        static int transformLoc = glGetUniformLocation(program, "vTransform");
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        //
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
-            if (wire_mode)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (wire_mode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-            // 將 wall_tex 綁到 GL_TEXTURE0
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, wall_tex);
-            // 將 lambda_tex 綁到 GL_TEXTURE1
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, lambda_tex);
-            // Upload uniforms
-            glUseProgram(program);
-            static int colorLocation = glGetUniformLocation(program, "fColor");
-            glUniform4f(colorLocation, tintColor[0], tintColor[1], tintColor[2], tintColor[3]);
-            static int mixLocation = glGetUniformLocation(program, "fMix");
-            glUniform1f(mixLocation, mix);
-            //
-            glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
-
-            if (wire_mode)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-            window.pushGLStates();
-            {
-                ImGui::SFML::Render(window);
+        window.pushGLStates();
+        {
+            ImGui::SFML::Render(window);
         }
         window.popGLStates();
         window.display();

@@ -51,7 +51,6 @@ uniform float fMix;
 void main()
 {
     vec4 resultColor = mix(texture(tex1, TexCoord), texture(tex2, TexCoord), fMix) * fColor;
-    // vec4 resultColor = texture(tex1, TexCoord) * fColor;
     FragColor = resultColor;
 }
 )glsl";
@@ -96,10 +95,10 @@ uint32_t LinkShaderProgram(uint32_t vertex, uint32_t fragment)
 
 float vertices[] = {
 //     ---- 位置 ----       ---- 颜色 ----     - 纹理坐标 -
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // 右上
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // 右下
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // 左下
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // 左上
+     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   0.55f, 0.55f,   // 右上
+     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   0.55f, 0.45f,   // 右下
+    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.45f, 0.45f,   // 左下
+    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.45f, 0.55f    // 左上
 };
 
 uint32_t indices[] = {
@@ -222,43 +221,46 @@ int main()
             ImGui::ColorEdit4("Tint", tintColor, ImGuiColorEditFlags_Float);
 
             static float mix;
+            static bool sin_flag = false;
+            ImGui::Checkbox("sin", &sin_flag);
             static sf::Clock mixClk;
-            mix = (sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f;
+            if(sin_flag)
+                mix = (sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f;
             ImGui::SliderFloat("Mix", &mix, 0.f, 1.f);
 
             static float bgColor[4];
             ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
-            ImGui::End();
+        ImGui::End();
 
-            glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-            if (wire_mode)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        if (wire_mode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-            // 將 wall_tex 綁到 GL_TEXTURE0
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, wall_tex);
-            // 將 lambda_tex 綁到 GL_TEXTURE1
-            glActiveTexture(GL_TEXTURE1);
-            glBindTexture(GL_TEXTURE_2D, lambda_tex);
-            // Upload uniforms
-            glUseProgram(program);
-            static int colorLocation = glGetUniformLocation(program, "fColor");
-            glUniform4f(colorLocation, tintColor[0], tintColor[1], tintColor[2], tintColor[3]);
-            static int mixLocation = glGetUniformLocation(program, "fMix");
-            glUniform1f(mixLocation, mix);
-            //
-            glBindVertexArray(vao);
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
+        // 將 wall_tex 綁到 GL_TEXTURE0
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, wall_tex);
+        // 將 lambda_tex 綁到 GL_TEXTURE1
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, lambda_tex);
+        // Upload uniforms
+        glUseProgram(program);
+        static int colorLocation = glGetUniformLocation(program, "fColor");
+        glUniform4f(colorLocation, tintColor[0], tintColor[1], tintColor[2], tintColor[3]);
+        static int mixLocation = glGetUniformLocation(program, "fMix");
+        glUniform1f(mixLocation, mix);
+        //
+        glBindVertexArray(vao);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
 
-            if (wire_mode)
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if (wire_mode)
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
-            window.pushGLStates();
-            {
-                ImGui::SFML::Render(window);
+        window.pushGLStates();
+        {
+            ImGui::SFML::Render(window);
         }
         window.popGLStates();
         window.display();
