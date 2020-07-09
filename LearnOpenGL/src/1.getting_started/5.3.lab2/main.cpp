@@ -214,7 +214,7 @@ int main()
         }
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("5.1.transformations");
+        ImGui::Begin("5.3.lab2");
         static bool wire_mode = false;
         ImGui::Checkbox("Wire Mode", &wire_mode);
         // tint
@@ -229,16 +229,21 @@ int main()
         static float bgColor[4];
         ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
         // transform
-        glm::mat4 trans(1.0f); // identity matrix
+        glm::mat4 transA(1.0f); // identity matrix
+        glm::mat4 transB(1.0f);
         static float rotate_degree = 90.f;
         rotate_degree = 360.f * ((sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f);
         ImGui::SliderFloat("Rotate", &rotate_degree, 0, 360);
-        trans = glm::rotate(trans, glm::radians(rotate_degree), glm::vec3(0.0, 0.0, 1.0));
-
+        //
+        transA = glm::translate(transA, glm::vec3(0.5f, -0.5f, 0.0f));
+        transA = glm::rotate(transA, glm::radians(rotate_degree), glm::vec3(0.0, 0.0, 1.0));
+        //
         static glm::vec3 scaler(0.5, 0.5, 0.5);
         scaler = glm::vec3(((sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f));
         ImGui::SliderFloat3("Scale", glm::value_ptr(scaler), 0.0f, 1.0f);
-        trans = glm::scale(trans, scaler);
+        //
+        transB = glm::translate(transB, glm::vec3(-0.5f, 0.5f, 0.0f));
+        transB = glm::scale(transB, scaler);
 
         ImGui::End();
 
@@ -261,10 +266,14 @@ int main()
         static int mixLoc = glGetUniformLocation(program, "fMix");
         glUniform1f(mixLoc, mix);
         static int transformLoc = glGetUniformLocation(program, "vTransform");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transA));
         //
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(transB));
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
         glBindVertexArray(0);
 
         if (wire_mode)

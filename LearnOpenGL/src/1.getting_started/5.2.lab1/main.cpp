@@ -214,7 +214,7 @@ int main()
         }
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("5.1.transformations");
+        ImGui::Begin("5.2.lab1");
         static bool wire_mode = false;
         ImGui::Checkbox("Wire Mode", &wire_mode);
         // tint
@@ -239,6 +239,8 @@ int main()
         scaler = glm::vec3(((sin(mixClk.getElapsedTime().asSeconds()) / 2.f) + 0.5f));
         ImGui::SliderFloat3("Scale", glm::value_ptr(scaler), 0.0f, 1.0f);
         trans = glm::scale(trans, scaler);
+
+        trans = glm::translate(trans, glm::vec3(0.5f, 0.5f, 0.f));
 
         ImGui::End();
 
