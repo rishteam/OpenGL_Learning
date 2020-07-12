@@ -23,3 +23,4 @@ add_subdirectory(5.3.lab2)
 
 add_subdirectory(6.1.coordinate_systems)
 add_subdirectory(6.2.cube)
+add_subdirectory(6.3.cube_depth)
