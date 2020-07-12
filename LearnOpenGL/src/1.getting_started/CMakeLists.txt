@@ -20,3 +20,5 @@ add_subdirectory(4.4.lab2)
 add_subdirectory(5.1.transformations)
 add_subdirectory(5.2.lab1)
 add_subdirectory(5.3.lab2)
+
+add_subdirectory(6.1.coordinate_systems)
