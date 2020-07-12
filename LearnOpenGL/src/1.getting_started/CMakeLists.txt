@@ -22,3 +22,4 @@ add_subdirectory(5.2.lab1)
 add_subdirectory(5.3.lab2)
 
 add_subdirectory(6.1.coordinate_systems)
+add_subdirectory(6.2.cube)
