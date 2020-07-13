@@ -26,3 +26,5 @@ add_subdirectory(6.2.cube)
 add_subdirectory(6.3.cube_depth)
 add_subdirectory(6.4.multiple_cube)
 add_subdirectory(6.5.lab1)
+
+add_subdirectory(7.1.camera_circle)
