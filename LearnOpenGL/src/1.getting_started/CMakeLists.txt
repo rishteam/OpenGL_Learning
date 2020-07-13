@@ -28,3 +28,4 @@ add_subdirectory(6.4.multiple_cube)
 add_subdirectory(6.5.lab1)
 
 add_subdirectory(7.1.camera_circle)
+add_subdirectory(7.2.camera_move)
