@@ -132,6 +132,8 @@ int main()
     printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
     ImGui::SFML::Init(window);
     window.setActive(true);
+    window.setMouseCursorVisible(false);
+    window.setMouseCursorGrabbed(true);
     init();
 
     // Blending
@@ -203,6 +205,8 @@ int main()
 
     sf::Clock stClk;
     sf::Clock deltaClock;
+    bool isMouseCaptured = false;
+    float mouseWheelDelta = 0.f;
     bool running = true;
     while (running)
     {
@@ -218,11 +222,30 @@ int main()
                 screenWidth = event.size.width;
                 screenHeight = event.size.height;
             }
+            else if(event.type == sf::Event::KeyPressed)
+            {
+                switch(event.key.code)
+                {
+                    case sf::Keyboard::Escape:
+                        running = false;
+                        continue;
+                    break;
+
+                    case sf::Keyboard::LAlt:
+                        isMouseCaptured = !isMouseCaptured;
+                        sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2} , window);
+                    break;
+                }
+            }
+            else if(event.type == sf::Event::MouseWheelScrolled)
+            {
+                mouseWheelDelta = event.mouseWheelScroll.delta;
+            }
         }
         float dt = stClk.restart().asSeconds();
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("7.1.camera_circle");
+        ImGui::Begin("7.3.camera_rotate");
         static bool wire_mode = false;
         ImGui::Checkbox("Wire Mode", &wire_mode);
         // tint
@@ -236,6 +259,13 @@ int main()
         // background color
         static float bgColor[4];
         ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
+        ImGui::End();
+
+        ImGui::Begin("Help", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+        ImGui::Text("WASD - Move the camera");
+        ImGui::Text("Space/Ctrl - Go up / down");
+        ImGui::Text("Left Alt - Enable/Disable mouse capture");
+        ImGui::Text("Esc - quit");
         ImGui::End();
 
         //
@@ -254,10 +284,15 @@ int main()
         static glm::vec3 cameraPos(0.f, 0.f, 3.f);
         static glm::vec3 cameraFront(0.f, 0.f, -1.f);
         static glm::vec3 cameraUp(0.f, 1.f, 0.f);
+        static float pitch  = 0.f;
+        static float yaw = -90.f;
+        static float sensitivity = 0.05f;
         glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
         ImGui::DragFloat3("Camera", glm::value_ptr(cameraPos));
         view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
         ImGui::DragFloat("Speed", &cameraSpeed);
+
+        ImGui::DragFloat("Sensitivity", &sensitivity);
 
         auto frontFloat = glm::value_ptr(cameraFront);
         ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
@@ -268,11 +303,42 @@ int main()
         //
         ImGui::Text("Projection");
         static float fov = 45.f, near = 0.1, far = 100.f;
+        if(mouseWheelDelta != 0.f)
+        {
+            fov += mouseWheelDelta;
+            if(fov < 1.f) fov = 1.f;
+            if(fov > 45.f) fov = 45.f;
+            mouseWheelDelta = 0.f;
+        }
         ImGui::DragFloat("FOV", &fov, 1.0f, 0.f, 360.f);
         ImGui::DragFloat("Near", &near, 0.01);
         ImGui::DragFloat("Far", &far, 0.1);
         projection = glm::perspective(glm::radians(fov), (float)screenWidth / screenHeight, near, far);
+        // Mouse move
+        if(isMouseCaptured)
+        {
+            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+            //
+            auto [x, y] = sf::Mouse::getPosition(window);
+            glm::vec2 nowCursorPos(x, window.getSize().y - y);
+            static glm::vec2 screenCenter(window.getSize().x / 2, window.getSize().y / 2);
+            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2} , window);
+            glm::vec2 off = nowCursorPos - screenCenter;
+            ImGui::Text("%.2f %.2f", off.x, off.y);
 
+            off *= sensitivity;
+            pitch += off.y;
+            yaw += off.x;
+
+            if(pitch > 89.f) pitch = 89.f;
+            if(pitch < -89.f) pitch = -89.f;
+
+            glm::vec3 newCameraFront;
+            newCameraFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
+            newCameraFront.y = sin(glm::radians(pitch));
+            newCameraFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+            cameraFront = glm::normalize(newCameraFront);
+        }
         ImGui::End();
 
         // Update
