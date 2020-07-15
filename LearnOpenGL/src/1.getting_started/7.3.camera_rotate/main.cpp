@@ -133,7 +133,6 @@ int main()
     ImGui::SFML::Init(window);
     window.setActive(true);
     window.setMouseCursorVisible(false);
-    window.setMouseCursorGrabbed(true);
     init();
 
     // Blending
@@ -293,13 +292,19 @@ int main()
         ImGui::DragFloat("Speed", &cameraSpeed);
 
         ImGui::DragFloat("Sensitivity", &sensitivity);
-
-        auto frontFloat = glm::value_ptr(cameraFront);
-        ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
-        auto UpFloat = glm::value_ptr(cameraUp);
-        ImGui::Text("Up    %.2f %.2f %.2f", UpFloat[0], UpFloat[1], UpFloat[2]);
-        auto RightFloat = glm::value_ptr(cameraRight);
-        ImGui::Text("Right %.2f %.2f %.2f", RightFloat[0], RightFloat[1], RightFloat[2]);
+        ImGui::Text("pitch = %.2f\nyaw = %.2f", pitch, yaw);
+        if(ImGui::TreeNode("camera vectors"))
+        {
+            auto frontFloat = glm::value_ptr(cameraFront);
+            ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
+            auto UpFloat = glm::value_ptr(cameraUp);
+            ImGui::Text("Up    %.2f %.2f %.2f", UpFloat[0], UpFloat[1], UpFloat[2]);
+            auto RightFloat = glm::value_ptr(cameraRight);
+            ImGui::Text("Right %.2f %.2f %.2f", RightFloat[0], RightFloat[1], RightFloat[2]);
+            ImGui::TreePop();
+        }
+        //
+        ImGui::Separator();
         //
         ImGui::Text("Projection");
         static float fov = 45.f, near = 0.1, far = 100.f;
@@ -317,6 +322,7 @@ int main()
         // Mouse move
         if(isMouseCaptured)
         {
+            window.setMouseCursorGrabbed(true);
             ImGui::SetMouseCursor(ImGuiMouseCursor_None);
             //
             auto [x, y] = sf::Mouse::getPosition(window);
@@ -330,6 +336,8 @@ int main()
             pitch += off.y;
             yaw += off.x;
 
+            if(yaw > 360.f || yaw < -360.f) yaw = glm::mod(yaw, 360.f);
+
             if(pitch > 89.f) pitch = 89.f;
             if(pitch < -89.f) pitch = -89.f;
 
@@ -338,6 +346,10 @@ int main()
             newCameraFront.y = sin(glm::radians(pitch));
             newCameraFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
             cameraFront = glm::normalize(newCameraFront);
+        }
+        else
+        {
+            window.setMouseCursorGrabbed(false);
         }
         ImGui::End();
 
