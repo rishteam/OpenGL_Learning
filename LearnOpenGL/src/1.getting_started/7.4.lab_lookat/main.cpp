@@ -408,9 +408,13 @@ int main()
             window.setMouseCursorGrabbed(true);
             //
             auto [x, y] = sf::Mouse::getPosition(window);
+            ImGui::Text("mpos = %d %d", x, y);
+            ImGui::Text("window size = %d %d", window.getSize().x, window.getSize().y);
             glm::vec2 nowCursorPos(x, window.getSize().y - y);
-            static glm::vec2 screenCenter(window.getSize().x / 2, window.getSize().y / 2);
-            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2} , window);
+            glm::vec2 screenCenter = glm::vec2(window.getSize().x / 2, window.getSize().y / 2);
+            if (window.getSize().y % 2 != 0)
+                screenCenter.y += 1;
+            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2}, window);
             glm::vec2 off = nowCursorPos - screenCenter;
             ImGui::Text("%.2f %.2f", off.x, off.y);
 

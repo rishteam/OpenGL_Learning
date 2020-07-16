@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(7.4.lab_1)
+project(7.5.lab_camera_class)
 add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 

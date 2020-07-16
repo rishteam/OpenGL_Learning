@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <string>
 #include <vector>
 #include <functional>
 #include <SFML/Window.hpp>
@@ -16,7 +17,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#define WIRE_MODE 0
+#include <fmt/core.h>
 
 void init()
 {
@@ -244,7 +245,7 @@ int main()
         float dt = stClk.restart().asSeconds();
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("7.3.camera_rotate");
+        ImGui::Begin("7.4.make ur own LookAt Matrix");
         static bool wire_mode = false;
         ImGui::Checkbox("Wire Mode", &wire_mode);
         // tint
@@ -288,23 +289,17 @@ int main()
         static float sensitivity = 0.05f;
         glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
         ImGui::DragFloat3("Camera", glm::value_ptr(cameraPos));
-        view = glm::lookAt(cameraPos, cameraPos+cameraFront, cameraUp);
-        ImGui::DragFloat("Speed", &cameraSpeed);
+        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
+        ImGui::DragFloat("Speed", &cameraSpeed);
         ImGui::DragFloat("Sensitivity", &sensitivity);
-        ImGui::Text("pitch = %.2f\nyaw = %.2f", pitch, yaw);
-        if(ImGui::TreeNode("camera vectors"))
-        {
-            auto frontFloat = glm::value_ptr(cameraFront);
-            ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
-            auto UpFloat = glm::value_ptr(cameraUp);
-            ImGui::Text("Up    %.2f %.2f %.2f", UpFloat[0], UpFloat[1], UpFloat[2]);
-            auto RightFloat = glm::value_ptr(cameraRight);
-            ImGui::Text("Right %.2f %.2f %.2f", RightFloat[0], RightFloat[1], RightFloat[2]);
-            ImGui::TreePop();
-        }
-        //
-        ImGui::Separator();
+
+        auto frontFloat = glm::value_ptr(cameraFront);
+        ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
+        auto UpFloat = glm::value_ptr(cameraUp);
+        ImGui::Text("Up    %.2f %.2f %.2f", UpFloat[0], UpFloat[1], UpFloat[2]);
+        auto RightFloat = glm::value_ptr(cameraRight);
+        ImGui::Text("Right %.2f %.2f %.2f", RightFloat[0], RightFloat[1], RightFloat[2]);
         //
         ImGui::Text("Projection");
         static float fov = 45.f, near = 0.1, far = 100.f;
@@ -319,29 +314,26 @@ int main()
         ImGui::DragFloat("Near", &near, 0.01);
         ImGui::DragFloat("Far", &far, 0.1);
         projection = glm::perspective(glm::radians(fov), (float)screenWidth / screenHeight, near, far);
-        ImGui::Separator();
         // Mouse move
         if(isMouseCaptured)
         {
-            window.setMouseCursorGrabbed(true);
             ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+            window.setMouseCursorGrabbed(true);
             //
             auto [x, y] = sf::Mouse::getPosition(window);
             ImGui::Text("mpos = %d %d", x, y);
             ImGui::Text("window size = %d %d", window.getSize().x, window.getSize().y);
             glm::vec2 nowCursorPos(x, window.getSize().y - y);
             glm::vec2 screenCenter = glm::vec2(window.getSize().x / 2, window.getSize().y / 2);
-            if(window.getSize().y % 2 != 0)
+            if (window.getSize().y % 2 != 0)
                 screenCenter.y += 1;
-            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2} , window);
+            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2}, window);
             glm::vec2 off = nowCursorPos - screenCenter;
             ImGui::Text("%.2f %.2f", off.x, off.y);
-            // rotate the camera
+
             off *= sensitivity;
             pitch += off.y;
             yaw += off.x;
-
-            if(yaw > 360.f || yaw < -360.f) yaw = glm::mod(yaw, 360.f);
 
             if(pitch > 89.f) pitch = 89.f;
             if(pitch < -89.f) pitch = -89.f;
@@ -353,9 +345,7 @@ int main()
             cameraFront = glm::normalize(newCameraFront);
         }
         else
-        {
             window.setMouseCursorGrabbed(false);
-        }
         ImGui::End();
 
         // Update
@@ -375,6 +365,16 @@ int main()
             cameraPos += cameraSpeed * cameraUp;
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
             cameraPos -= cameraSpeed * cameraUp;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
+            yaw -= 1.f;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
+            yaw += 1.f;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
+            pitch += 1.f;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
+            pitch -= 1.f;
+        if(pitch > 89.f) pitch = 89.f;
+        if(pitch < -89.f) pitch = -89.f;
 
         // Draw
         glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
