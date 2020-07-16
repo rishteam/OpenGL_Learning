@@ -19,6 +19,9 @@
 
 #include <fmt/core.h>
 
+#include "camera.h"
+#include "player.h"
+
 void init()
 {
     setvbuf(stdin, nullptr, _IONBF, 0);
@@ -119,10 +122,10 @@ std::vector<glm::vec3> cubePositions = {
 };
 
 uint32_t screenWidth = 1280, screenHeight = 720;
+sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4));
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4));
     window.setVerticalSyncEnabled(true);
     // Load OpenGL functions using glad
     if (!gladLoadGL())
@@ -203,10 +206,10 @@ int main()
     glUniform1i(glGetUniformLocation(program, "tex1"), 0);
     glUniform1i(glGetUniformLocation(program, "tex2"), 1);
 
+    FirstPersonView fpsView;
+
     sf::Clock stClk;
     sf::Clock deltaClock;
-    bool isMouseCaptured = false;
-    float mouseWheelDelta = 0.f;
     bool running = true;
     while (running)
     {
@@ -222,30 +225,12 @@ int main()
                 screenWidth = event.size.width;
                 screenHeight = event.size.height;
             }
-            else if(event.type == sf::Event::KeyPressed)
-            {
-                switch(event.key.code)
-                {
-                    case sf::Keyboard::Escape:
-                        running = false;
-                        continue;
-                    break;
-
-                    case sf::Keyboard::LAlt:
-                        isMouseCaptured = !isMouseCaptured;
-                        sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2} , window);
-                    break;
-                }
-            }
-            else if(event.type == sf::Event::MouseWheelScrolled)
-            {
-                mouseWheelDelta = event.mouseWheelScroll.delta;
-            }
+            fpsView.processEvent(event);
         }
         float dt = stClk.restart().asSeconds();
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
-        ImGui::Begin("7.4.make ur own LookAt Matrix");
+        ImGui::Begin("7.5.lab_camera_class");
         static bool wire_mode = false;
         ImGui::Checkbox("Wire Mode", &wire_mode);
         // tint
@@ -268,113 +253,33 @@ int main()
         ImGui::Text("Esc - quit");
         ImGui::End();
 
-        //
         ImGui::Begin("Matrix");
-
+        // Model matrix
         glm::mat4 model(1.f), view(1.f), projection(1.f);
         ImGui::Text("Model");
         static float rotate_x = -55.0f, rotate_y = 0.f, rotate_z = 0.f;
         ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
         ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
         ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);
-
-        ImGui::Separator();
-        ImGui::Text("View");
-        static float cameraSpeed = 0.05f;
-        static glm::vec3 cameraPos(0.f, 0.f, 3.f);
-        static glm::vec3 cameraFront(0.f, 0.f, -1.f);
-        static glm::vec3 cameraUp(0.f, 1.f, 0.f);
-        static float pitch  = 0.f;
-        static float yaw = -90.f;
-        static float sensitivity = 0.05f;
-        glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, cameraUp));
-        ImGui::DragFloat3("Camera", glm::value_ptr(cameraPos));
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
-        ImGui::DragFloat("Speed", &cameraSpeed);
-        ImGui::DragFloat("Sensitivity", &sensitivity);
-
-        auto frontFloat = glm::value_ptr(cameraFront);
-        ImGui::Text("Front %.2f %.2f %.2f", frontFloat[0], frontFloat[1], frontFloat[2]);
-        auto UpFloat = glm::value_ptr(cameraUp);
-        ImGui::Text("Up    %.2f %.2f %.2f", UpFloat[0], UpFloat[1], UpFloat[2]);
-        auto RightFloat = glm::value_ptr(cameraRight);
-        ImGui::Text("Right %.2f %.2f %.2f", RightFloat[0], RightFloat[1], RightFloat[2]);
         //
+        ImGui::Separator();
+        // View matrix
+        ImGui::Text("View");
+        view = fpsView.getViewMatrix();
+        ImGui::DragFloat3("Camera", glm::value_ptr(fpsView.m_camera.m_pos));
+        ImGui::DragFloat("Speed", &fpsView.cameraSpeed);
+        ImGui::DragFloat("Sensitivity", &fpsView.sensitivity);
+        // Projection matrix
         ImGui::Text("Projection");
-        static float fov = 45.f, near = 0.1, far = 100.f;
-        if(mouseWheelDelta != 0.f)
-        {
-            fov += mouseWheelDelta;
-            if(fov < 1.f) fov = 1.f;
-            if(fov > 45.f) fov = 45.f;
-            mouseWheelDelta = 0.f;
-        }
-        ImGui::DragFloat("FOV", &fov, 1.0f, 0.f, 360.f);
-        ImGui::DragFloat("Near", &near, 0.01);
-        ImGui::DragFloat("Far", &far, 0.1);
-        projection = glm::perspective(glm::radians(fov), (float)screenWidth / screenHeight, near, far);
-        // Mouse move
-        if(isMouseCaptured)
-        {
-            ImGui::SetMouseCursor(ImGuiMouseCursor_None);
-            window.setMouseCursorGrabbed(true);
-            //
-            auto [x, y] = sf::Mouse::getPosition(window);
-            ImGui::Text("mpos = %d %d", x, y);
-            ImGui::Text("window size = %d %d", window.getSize().x, window.getSize().y);
-            glm::vec2 nowCursorPos(x, window.getSize().y - y);
-            glm::vec2 screenCenter = glm::vec2(window.getSize().x / 2, window.getSize().y / 2);
-            if (window.getSize().y % 2 != 0)
-                screenCenter.y += 1;
-            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2}, window);
-            glm::vec2 off = nowCursorPos - screenCenter;
-            ImGui::Text("%.2f %.2f", off.x, off.y);
-
-            off *= sensitivity;
-            pitch += off.y;
-            yaw += off.x;
-
-            if(pitch > 89.f) pitch = 89.f;
-            if(pitch < -89.f) pitch = -89.f;
-
-            glm::vec3 newCameraFront;
-            newCameraFront.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-            newCameraFront.y = sin(glm::radians(pitch));
-            newCameraFront.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-            cameraFront = glm::normalize(newCameraFront);
-        }
-        else
-            window.setMouseCursorGrabbed(false);
+        ImGui::DragFloat("FOV", &fpsView.m_camera.m_fov, 1.0f, 0.f, 360.f);
+        ImGui::DragFloat("Near", &fpsView.m_camera.m_near, 0.01);
+        ImGui::DragFloat("Far", &fpsView.m_camera.m_far, 0.1);
+        ImGui::Text("fpsView.m_camera.m_screenRatio = %f", fpsView.m_camera.m_screenRatio);
+        projection = fpsView.getProjectionMatrix();
         ImGui::End();
 
         // Update
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
-            cameraSpeed = dt * 5;
-        else
-            cameraSpeed = dt * 3;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-            cameraPos += cameraSpeed * cameraFront;
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-            cameraPos -= cameraSpeed * cameraFront;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::A))
-            cameraPos -= cameraSpeed * cameraRight;
-        else if(sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-            cameraPos += cameraSpeed * cameraRight;
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-            cameraPos += cameraSpeed * cameraUp;
-        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
-            cameraPos -= cameraSpeed * cameraUp;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
-            yaw -= 1.f;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
-            yaw += 1.f;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
-            pitch += 1.f;
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
-            pitch -= 1.f;
-        if(pitch > 89.f) pitch = 89.f;
-        if(pitch < -89.f) pitch = -89.f;
+        fpsView.update(dt);
 
         // Draw
         glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
