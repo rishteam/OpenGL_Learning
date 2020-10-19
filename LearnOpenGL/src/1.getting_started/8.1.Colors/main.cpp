@@ -90,8 +90,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Load shader
-    Shader shader("shader/vertexShader.vs", "shader/fragmentShader.fs");
-    Shader shader2("shader/colorVertex.vs", "shader/colorFragment.fs");
+    Shader shader("shader/8.1.Colors/lighting.vs", "shader/8.1.Colors/lighting.fs");
+    Shader shader2("shader/8.1.Colors/light_cube.vs", "shader/8.1.Colors/light_cube.fs");
     VertexArray vertexArray;
     BufferLayout layout = {
         {ShaderDataType::Float3, "aPos"}
@@ -99,7 +99,6 @@ int main()
     VertexBuffer vertex(vertices, sizeof(vertices));
     vertex.setLayout(layout);
     vertexArray.addVertexBuffer(&vertex);
-
     FirstPersonView fpsView;
 
     sf::Clock stClk;

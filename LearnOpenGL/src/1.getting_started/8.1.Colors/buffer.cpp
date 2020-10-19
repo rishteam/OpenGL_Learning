@@ -8,13 +8,13 @@ VertexBuffer::VertexBuffer()
 }
 VertexBuffer::VertexBuffer(uint32_t size)
 {
-    glCreateBuffers(1, &vbo);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     // glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 VertexBuffer::VertexBuffer(float *vertices, uint32_t size)
 {
-    glCreateBuffers(1, &vbo);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }

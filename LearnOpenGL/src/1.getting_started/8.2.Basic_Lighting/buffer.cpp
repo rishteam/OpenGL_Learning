@@ -3,18 +3,18 @@
 // VertexBuffer
 VertexBuffer::VertexBuffer()
 {
-    glCreateBuffers(1, &vbo);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
 }
 VertexBuffer::VertexBuffer(uint32_t size)
 {
-    glCreateBuffers(1, &vbo);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     // glBufferData(GL_ARRAY_BUFFER, size, nullptr, GL_DYNAMIC_DRAW);
 }
 VertexBuffer::VertexBuffer(float *vertices, uint32_t size)
 {
-    glCreateBuffers(1, &vbo);
+    glGenBuffers(1, &vbo);
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 }
@@ -43,7 +43,7 @@ void VertexBuffer::setData(const void *data, uint32_t size)
 IndexBuffer::IndexBuffer(uint32_t *indices, uint32_t count)
     : m_count(count)
 {
-    glCreateBuffers(1, &ebo);
+    glGenBuffers(1, &ebo);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
 }

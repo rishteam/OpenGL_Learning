@@ -61,12 +61,14 @@ void main()
 
 #include "vertices.h"
 
-glm::vec3 lightPos(1.2, 1.f, 0.f);
+glm::vec3 lightPos(0.f, 1.f, 0.f);
 
 const uint32_t screenWidth = 1280, screenHeight = 720;
 
 sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4));
 
+glm::vec3 lightColor(1.f, 1.f, 1.f);
+glm::vec3 objectColor(1, 0.5, 0.31);
 int main()
 {
     std::cout << std::filesystem::current_path();
@@ -88,16 +90,16 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Load shader
-    Shader shader("shader/vertexShader.vs", "shader/fragmentShader.fs");
-    Shader shader2("shader/colorVertex.vs", "shader/colorFragment.fs");
+    Shader shader("shader/8.2.Basic_Lighting/lighting.vs", "shader/8.2.Basic_Lighting/lighting.fs");
+    Shader shader2("shader/8.2.Basic_Lighting/light_cube.vs", "shader/8.2.Basic_Lighting/light_cube.fs");
     VertexArray vertexArray;
     BufferLayout layout = {
-        {ShaderDataType::Float3, "aPos"}
+            {ShaderDataType::Float3, "aPos"},
+            {ShaderDataType::Float3, "aNormal"}
     };
     VertexBuffer vertex(vertices, sizeof(vertices));
     vertex.setLayout(layout);
     vertexArray.addVertexBuffer(&vertex);
-
     FirstPersonView fpsView;
 
     sf::Clock stClk;
@@ -120,14 +122,6 @@ int main()
         // ImGui Update
         ImGui::SFML::Update(window, deltaClock.restart());
         ImGui::Begin("6.2.cube");
-        static bool wire_mode = false;
-        ImGui::Checkbox("Wire Mode", &wire_mode);
-        // tint
-        static float tintColor[4] = {1.f, 1.f, 1.f, 1.f};
-        ImGui::ColorEdit4("Tint", tintColor, ImGuiColorEditFlags_Float);
-        // mix
-        static float mix = 0.2f;
-        ImGui::SliderFloat("Mix", &mix, 0.f, 1.f);
         // background color
         static float bgColor[4];
         ImGui::ColorEdit4("BG", bgColor, ImGuiColorEditFlags_Float);
@@ -137,18 +131,19 @@ int main()
         //
         glm::mat4 model(1.f), view(1.f), projection(1.f);
         ImGui::Text("Model");
-        static float rotate_x = -55.0f, rotate_y = 0.f, rotate_z = 0.f;
+        static float rotate_x = 0.0f, rotate_y = 0.f, rotate_z = 0.f;
+        static glm::vec3 obTrans = {0.f, -1.f, 0.f};
         float step = 100 * stClk.getElapsedTime().asSeconds();
-//        rotate_x = step;
-//        rotate_y = step;
-//        rotate_z = step;
         ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
         ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
         ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);
+        ImGui::DragFloat("Pos x", &obTrans.x, .1);
+        ImGui::DragFloat("Pos y", &obTrans.y, .1);
+        ImGui::DragFloat("pos z", &obTrans.z, .1);
+        model = glm::translate(model, obTrans);
         model = glm::rotate(model, glm::radians(rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::rotate(model, glm::radians(rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
-
         ImGui::Separator();
         static float trans[3] = {0.0f, 0.0f, -3.0f};
         ImGui::Text("View");
@@ -170,6 +165,27 @@ int main()
 
         ImGui::End();
 
+        ImGui::Begin("Light Attribute");
+
+        ImGui::Text("Light");
+        ImGui::ColorEdit4("Light Color", glm::value_ptr(lightColor));
+        ImGui::PushItemWidth(50);
+        ImGui::Text("Light Pos");
+        ImGui::DragFloat("x", &lightPos.x, 0.1);
+        ImGui::SameLine();
+        ImGui::DragFloat("y", &lightPos.y, 0.1);
+        ImGui::SameLine();
+        ImGui::DragFloat("z", &lightPos.z, 0.1);
+        ImGui::PopItemWidth();
+        ImGui::Text("Object");
+        ImGui::ColorEdit4("Object Color", glm::value_ptr(objectColor));
+
+        static float ambientStrength = 0.1;
+        ImGui::DragFloat("ambientStrength", &ambientStrength, 0.1);
+        static float specularStrength = 0.5;
+        ImGui::DragFloat("specularStrength", &specularStrength, 0.1);
+        ImGui::End();
+
         glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         fpsView.update(dt);
@@ -178,13 +194,16 @@ int main()
         shader.setMat4("vModel", model);
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
-        shader.setFloat3("lightColor", glm::vec3(1, 1, 1));
-        shader.setFloat3("objectColor", glm::vec3(1, 0.5, 0.31));
+        shader.setFloat3("lightColor", lightColor);
+        shader.setFloat3("objectColor", objectColor);
+        shader.setFloat3("LightPos", lightPos);
+        shader.setFloat3("viewPos", fpsView.m_camera.m_pos);
+        shader.setFloat("ambientStrength", ambientStrength);
+        shader.setFloat("specularStrength", specularStrength);
 
         vertexArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
         shader.unbind();
-
 
         shader2.bind();
         shader2.setMat4("vView", view);
@@ -193,11 +212,10 @@ int main()
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.1f));
         shader2.setMat4("vModel", model);
+        shader2.setFloat3("lightColor", lightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         vertexArray.unbind();
         shader2.unbind();
-
-
 
         window.pushGLStates();
         {
