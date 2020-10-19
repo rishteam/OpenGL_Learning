@@ -199,8 +199,8 @@ int main()
         return texture;
     };
 
-    uint32_t wall_tex = LoadTexture("wall.jpg");
-    uint32_t lambda_tex = LoadTexture("lambda.png");
+    uint32_t wall_tex = LoadTexture("1.jpg");
+    uint32_t lambda_tex = LoadTexture("1.png");
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "tex1"), 0);

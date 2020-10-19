@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
-
-project(2.2.hello_triangle_indexed)
-add_executable(${PROJECT_NAME} main.cpp ../8.1.Colors/main.cpp)
+set(CMAKE_CXX_STANDARD 17)
+project(8.1.Colors)
+add_executable(${PROJECT_NAME} main.cpp shader.cpp buffer.cpp VertexArray.cpp Texture.cpp camera.h player.h)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 
 # Link SFML
@@ -14,3 +14,5 @@ target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 # imgui-SFML
 find_package(ImGui-SFML REQUIRED)
 target_link_libraries(${PROJECT_NAME} ImGui-SFML::ImGui-SFML)
+find_package(fmt REQUIRED)
+target_link_libraries(${PROJECT_NAME} fmt::fmt)

@@ -119,6 +119,8 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_DEPTH_TEST);
+
     // Load shader
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
@@ -172,8 +174,8 @@ int main()
         return texture;
     };
 
-    uint32_t wall_tex = LoadTexture("wall.jpg");
-    uint32_t lambda_tex = LoadTexture("lambda.png");
+    uint32_t wall_tex = LoadTexture("1.jpg");
+    uint32_t lambda_tex = LoadTexture("1.png");
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "tex1"), 0);
@@ -215,9 +217,9 @@ int main()
         ImGui::Text("Model");
         static float rotate_x = -55.0f, rotate_y = 0.f, rotate_z = 0.f;
         float step = 100 * stClk.getElapsedTime().asSeconds();
-        rotate_x = step;
-        rotate_y = step;
-        rotate_z = step;
+//        rotate_x = step;
+//        rotate_y = step;
+//        rotate_z = step;
         ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
         ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
         ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);

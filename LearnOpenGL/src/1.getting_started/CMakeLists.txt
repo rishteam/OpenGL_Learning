@@ -32,3 +32,5 @@ add_subdirectory(7.2.camera_move)
 add_subdirectory(7.3.camera_rotate)
 add_subdirectory(7.4.lab_lookat)
 add_subdirectory(7.5.lab_camera_class)
+
+add_subdirectory(8.1.Colors)
