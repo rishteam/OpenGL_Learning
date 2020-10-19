@@ -34,3 +34,4 @@ add_subdirectory(7.4.lab_lookat)
 add_subdirectory(7.5.lab_camera_class)
 
 add_subdirectory(8.1.Colors)
+add_subdirectory(8.2.Basic_Lighting)

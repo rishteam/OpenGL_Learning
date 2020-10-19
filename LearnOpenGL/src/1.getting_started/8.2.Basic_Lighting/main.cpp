@@ -67,8 +67,6 @@ const uint32_t screenWidth = 1280, screenHeight = 720;
 
 sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4));
 
-glm::vec3 lightColor(0.33f, 0.42f, 0.18f);
-glm::vec3 objectColor(1, 0.5, 0.31);
 int main()
 {
     std::cout << std::filesystem::current_path();
@@ -170,14 +168,7 @@ int main()
         ImGui::Text("fpsView.m_camera.m_screenRatio = %f", fpsView.m_camera.m_screenRatio);
         projection = fpsView.getProjectionMatrix();
 
-        ImGui::Separator();
-
-        ImGui::Text("Light");
-        ImGui::ColorEdit4("Light Color", glm::value_ptr(lightColor));
-        ImGui::Text("Object");
-        ImGui::ColorEdit4("Object Color", glm::value_ptr(objectColor));
         ImGui::End();
-
 
         glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -187,8 +178,8 @@ int main()
         shader.setMat4("vModel", model);
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
-        shader.setFloat3("lightColor", lightColor);
-        shader.setFloat3("objectColor", objectColor);
+        shader.setFloat3("lightColor", glm::vec3(1, 1, 1));
+        shader.setFloat3("objectColor", glm::vec3(1, 0.5, 0.31));
 
         vertexArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -202,7 +193,6 @@ int main()
         model = glm::translate(model, lightPos);
         model = glm::scale(model, glm::vec3(0.1f));
         shader2.setMat4("vModel", model);
-        shader2.setFloat3("lightColor", lightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         vertexArray.unbind();
         shader2.unbind();
