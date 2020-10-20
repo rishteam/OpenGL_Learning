@@ -61,7 +61,7 @@ void main()
 
 #include "vertices.h"
 
-glm::vec3 lightPos(0.f, 1.f, 0.f);
+glm::vec3 lightPos(1.2f, 1.0f, 2.f);
 
 const uint32_t screenWidth = 1280, screenHeight = 720;
 
@@ -90,8 +90,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Load shader
-    Shader shader("shader/8.2.Basic_Lighting/lighting.vs", "shader/8.2.Basic_Lighting/lighting.fs");
-    Shader shader2("shader/8.2.Basic_Lighting/light_cube.vs", "shader/8.2.Basic_Lighting/light_cube.fs");
+    Shader shader("shader/8.3.Materials/lighting.vs", "shader/8.3.Materials/lighting.fs");
+    Shader shader2("shader/8.3.Materials/light_cube.vs", "shader/8.3.Materials/light_cube.fs");
     VertexArray vertexArray;
     BufferLayout layout = {
             {ShaderDataType::Float3, "aPos"},
@@ -132,7 +132,7 @@ int main()
         glm::mat4 model(1.f), view(1.f), projection(1.f);
         ImGui::Text("Model");
         static float rotate_x = 0.0f, rotate_y = 0.f, rotate_z = 0.f;
-        static glm::vec3 obTrans = {0.f, -1.f, 0.f};
+        static glm::vec3 obTrans = {-1.f, 1.f, 1.f};
         float step = 100 * stClk.getElapsedTime().asSeconds();
         ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
         ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
@@ -145,11 +145,38 @@ int main()
         model = glm::rotate(model, glm::radians(rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
         model = glm::rotate(model, glm::radians(rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
         ImGui::Separator();
-        static float trans[3] = {0.0f, 0.0f, -3.0f};
+        static float trans[3] = {0.0f, 0.0f, 0.0f};
         ImGui::Text("View");
         ImGui::SliderFloat3("Translate", trans, -100.f, 100.f);
         view = glm::translate(view, glm::vec3(trans[0], trans[1], trans[2]));
-        //
+
+        ImGui::PushItemWidth(100);
+        static glm::vec3 materialAmbient(1, 0.5, 0.31);
+        ImGui::Text("materialAmbient");
+        ImGui::DragFloat("x##materialAmbient", &materialAmbient.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##materialAmbient", &materialAmbient.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##materialAmbient", &materialAmbient.z, 0.1);
+
+        static glm::vec3 materialDiffuse(1, 0.5, 0.31);
+        ImGui::Text("materialDiffuse");
+        ImGui::DragFloat("x##materialDiffuse", &materialDiffuse.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##materialDiffuse", &materialDiffuse.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##materialDiffuse", &materialDiffuse.z, 0.1);
+
+        static glm::vec3 materialSpecular(0.5, 0.5, 0.5);
+        ImGui::Text("materialSpecular");
+        ImGui::DragFloat("x##materialSpecular", &materialSpecular.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##materialSpecular", &materialSpecular.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##materialSpecular", &materialSpecular.z, 0.1);
+
+        ImGui::PopItemWidth();
+
+        static float materialShininess = 32.f;
+        ImGui::Text("materialShininess");
+        ImGui::DragFloat("materialShininess", &materialShininess, 0.1, 0, 256);
+
+        ImGui::End();
+        ImGui::Begin("Camera");
         ImGui::Text("View");
         view = fpsView.getViewMatrix();
         ImGui::DragFloat3("Camera", glm::value_ptr(fpsView.m_camera.m_pos));
@@ -167,8 +194,6 @@ int main()
 
         ImGui::Begin("Light Attribute");
 
-        ImGui::Text("Light");
-        ImGui::ColorEdit4("Light Color", glm::value_ptr(lightColor));
         ImGui::PushItemWidth(50);
         ImGui::Text("Light Pos");
         ImGui::DragFloat("x", &lightPos.x, 0.1);
@@ -177,13 +202,26 @@ int main()
         ImGui::SameLine();
         ImGui::DragFloat("z", &lightPos.z, 0.1);
         ImGui::PopItemWidth();
-        ImGui::Text("Object");
-        ImGui::ColorEdit4("Object Color", glm::value_ptr(objectColor));
 
-        static float ambientStrength = 0.2;
-        ImGui::DragFloat("ambientStrength", &ambientStrength, 0.1);
-        static float specularStrength = 0.5;
-        ImGui::DragFloat("specularStrength", &specularStrength, 0.1);
+        ImGui::PushItemWidth(100);
+        static glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
+        ImGui::Text("lightAmbient");
+        ImGui::DragFloat("x##lightAmbient", &lightAmbient.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##lightAmbient", &lightAmbient.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##lightAmbient", &lightAmbient.z, 0.1);
+
+        static glm::vec3 lightDiffuse(0.5f, 0.5f, 0.5f);
+        ImGui::Text("lightDiffuse");
+        ImGui::DragFloat("x##lightDiffuse", &lightDiffuse.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##lightDiffuse", &lightDiffuse.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##lightDiffuse", &lightDiffuse.z, 0.1);
+
+        static glm::vec3 lightSpecular(1.0f, 1.0f, 1.0f);
+        ImGui::Text("lightSpecular");
+        ImGui::DragFloat("x##lightSpecular", &lightSpecular.x, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("y##lightSpecular", &lightSpecular.y, 0.1); ImGui::SameLine();
+        ImGui::DragFloat("z##lightSpecular", &lightSpecular.z, 0.1);
+        ImGui::PopItemWidth();
         ImGui::End();
 
         glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
@@ -194,12 +232,17 @@ int main()
         shader.setMat4("vModel", model);
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
-        shader.setFloat3("lightColor", lightColor);
+//        shader.setFloat3("lightColor", lightColor);
         shader.setFloat3("objectColor", objectColor);
-        shader.setFloat3("lightPos", lightPos);
         shader.setFloat3("viewPos", fpsView.m_camera.m_pos);
-        shader.setFloat("ambientStrength", ambientStrength);
-        shader.setFloat("specularStrength", specularStrength);
+        shader.setFloat3("material.ambient", materialAmbient);
+        shader.setFloat3("material.diffuse", materialDiffuse);
+        shader.setFloat3("material.specular", materialSpecular);
+        shader.setFloat("material.shininess", materialShininess);
+        shader.setFloat3("light.ambient", lightAmbient);
+        shader.setFloat3("light.diffuse", lightDiffuse);
+        shader.setFloat3("light.specular", lightSpecular);
+        shader.setFloat3("light.position", lightPos);
 
         vertexArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
@@ -210,7 +253,7 @@ int main()
         shader2.setMat4("vProjection", projection);
         model = glm::mat4(1.f);
         model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.1f));
+        model = glm::scale(model, glm::vec3(0.2f));
         shader2.setMat4("vModel", model);
         shader2.setFloat3("lightColor", lightColor);
         glDrawArrays(GL_TRIANGLES, 0, 36);
