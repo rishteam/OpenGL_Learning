@@ -239,11 +239,12 @@ int main()
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
 //        shader.setFloat3("lightColor", lightColor);
-        shader.setFloat3("objectColor", objectColor);
         shader.setFloat3("viewPos", fpsView.m_camera.m_pos);
+
         shader.setInt("material.diffuse", 0);
         shader.setInt("material.specular", 1);
         shader.setFloat("material.shininess", materialShininess);
+
         shader.setFloat3("light.ambient", lightAmbient);
         shader.setFloat3("light.diffuse", lightDiffuse);
         shader.setFloat3("light.specular", lightSpecular);
