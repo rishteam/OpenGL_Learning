@@ -71,12 +71,12 @@ int main()
     vertex.setLayout(layout);
     vertexArray.addVertexBuffer(&vertex);
     const std::string path = "assets/box.png";
-    Texture2D t1("assets/box.png");
-    Texture2D t2("assets/boxOutline.png");
+//    Texture2D t1("assets/box.png");
+//    Texture2D t2("assets/boxOutline.png");
     auto LoadTexture = [&](std::string path) {
         sf::Image img;
         img.loadFromFile(path);
-        img.flipVertically();
+//        img.flipVertically();
         // generate a texture
         uint32_t texture;
         glGenTextures(1, &texture);
@@ -84,7 +84,7 @@ int main()
         // texture parameter
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, img.getSize().x, img.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)img.getPixelsPtr());
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -93,6 +93,13 @@ int main()
 
     uint32_t texture = LoadTexture("assets/box.png");
     uint32_t texture2 = LoadTexture("assets/boxOutline.png");
+    uint32_t texture3 = LoadTexture("assets/matrix.jpg");
+
+
+    shader.bind();
+    shader.setInt("material.diffuse", 0);
+    shader.setInt("material.specular", 1);
+    shader.setInt("material.emission", 2);
 
     FirstPersonView fpsView;
 
@@ -153,7 +160,7 @@ int main()
 
         ImGui::PopItemWidth();
 
-        static float materialShininess = 32.f;
+        static float materialShininess = 64.f;
         ImGui::Text("materialShininess");
         ImGui::DragFloat("materialShininess", &materialShininess, 0.5f, 0, 256);
 
@@ -212,35 +219,31 @@ int main()
         fpsView.update(dt);
         // Upload uniforms
         shader.bind();
-        shader.setMat4("vModel", model);
-        shader.setMat4("vView", view);
-        shader.setMat4("vProjection", projection);
-//        shader.setFloat3("lightColor", lightColor);
-        shader.setFloat3("objectColor", objectColor);
+        shader.setFloat3("light.position", lightPos);
         shader.setFloat3("viewPos", fpsView.m_camera.m_pos);
-        shader.setInt("material.diffuse", 0);
-        shader.setInt("material.specular", 1);
-        shader.setFloat("material.shininess", materialShininess);
+
+        // light properties
         shader.setFloat3("light.ambient", lightAmbient);
         shader.setFloat3("light.diffuse", lightDiffuse);
         shader.setFloat3("light.specular", lightSpecular);
-        shader.setFloat3("light.position", lightPos);
+
+        // material properties
+        shader.setFloat("material.shininess", materialShininess);
+
+        shader.setMat4("vModel", model);
+        shader.setMat4("vView", view);
+        shader.setMat4("vProjection", projection);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
-
-//        glActiveTexture(GL_TEXTURE0);
-//        t1.bind();
-//        glActiveTexture(GL_TEXTURE0);
-//        t2.bind();
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, texture3);
 
         vertexArray.bind();
         glDrawArrays(GL_TRIANGLES, 0, 36);
         shader.unbind();
-//        t1.unbind();
-//        t2.unbind();
 
         shader2.bind();
         shader2.setMat4("vView", view);

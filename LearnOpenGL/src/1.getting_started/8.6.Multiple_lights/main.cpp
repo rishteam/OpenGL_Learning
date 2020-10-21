@@ -120,9 +120,16 @@ int main()
     };
 
     uint32_t texture = LoadTexture("assets/box.png");
-    uint32_t texture2 = LoadTexture("assets/boxOutline.png");
+    uint32_t texture2 = LoadTexture("assets/boxOutlineColored.png");
+    uint32_t texture3 = LoadTexture("assets/2.jpg");
 
     FirstPersonView fpsView;
+
+    shader.bind();
+    shader.setInt("material.diffuse", 0);
+    shader.setInt("material.specular", 1);
+    shader.setInt("spotLight.diffuse_", 2);
+    shader.setInt("spotLight.specular_", 3);
 
     sf::Clock stClk;
     sf::Clock deltaClock;
@@ -152,34 +159,10 @@ int main()
         ImGui::Begin("Matrix");
         //
         glm::mat4 model(1.f), view(1.f), projection(1.f);
-//        ImGui::Text("Model");
-        static float rotate_x = 0.0f, rotate_y = 0.f, rotate_z = 0.f;
-        static glm::vec3 obTrans = {-1.f, 1.f, 1.f};
-        float step = 100 * stClk.getElapsedTime().asSeconds();
-//        ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
-//        ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
-//        ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);
-//        ImGui::DragFloat("Pos x", &obTrans.x, .1);
-//        ImGui::DragFloat("Pos y", &obTrans.y, .1);
-//        ImGui::DragFloat("pos z", &obTrans.z, .1);
-//        model = glm::translate(model, obTrans);
-//        model = glm::rotate(model, glm::radians(rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
-//        model = glm::rotate(model, glm::radians(rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
-//        model = glm::rotate(model, glm::radians(rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
-        ImGui::Separator();
         static float trans[3] = {0.0f, 0.0f, 0.0f};
         ImGui::Text("View");
         ImGui::SliderFloat3("Translate", trans, -100.f, 100.f);
         view = glm::translate(view, glm::vec3(trans[0], trans[1], trans[2]));
-
-        ImGui::PushItemWidth(100);
-        static glm::vec3 materialSpecular(0.5, 0.5, 0.5);
-        ImGui::Text("materialSpecular");
-        ImGui::DragFloat("x##materialSpecular", &materialSpecular.x, 0.1); ImGui::SameLine();
-        ImGui::DragFloat("y##materialSpecular", &materialSpecular.y, 0.1); ImGui::SameLine();
-        ImGui::DragFloat("z##materialSpecular", &materialSpecular.z, 0.1);
-
-        ImGui::PopItemWidth();
 
         static float materialShininess = 32.f;
         ImGui::Text("materialShininess");
@@ -217,19 +200,13 @@ int main()
             ImGui::DragFloat("z##Direct Direction", &dirLight_direction.z);
 
             ImGui::Text("Direct Ambient");
-            ImGui::DragFloat("x##Direct Ambient", &dirLight_ambient.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Direct Ambient", &dirLight_ambient.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Direct Ambient", &dirLight_ambient.z);
+            ImGui::ColorEdit3("ambient##Direct", glm::value_ptr(dirLight_ambient));
 
             ImGui::Text("Direct Diffuse");
-            ImGui::DragFloat("x##Direct Diffuse", &dirLight_diffuse.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Direct Diffuse", &dirLight_diffuse.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Direct Diffuse", &dirLight_diffuse.z);
+            ImGui::ColorEdit3("diffuse##Direct", glm::value_ptr(dirLight_diffuse));
 
             ImGui::Text("Direct Specular");
-            ImGui::DragFloat("x##Direct Specular", &dirLight_specular.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Direct Specular", &dirLight_specular.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Direct Specular", &dirLight_specular.z);
+            ImGui::ColorEdit3("specular##Direct", glm::value_ptr(dirLight_specular));
         }
 
         static glm::vec3 pointLight_ambient(0.05f, 0.05f, 0.05f);
@@ -245,7 +222,6 @@ int main()
                 ImGui::DragFloat("x##Point 1", &pointLightPositions[0].x, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("y##Point 1", &pointLightPositions[0].y, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("z##Point 1", &pointLightPositions[0].z, 0.1f);
-                ImGui::ColorEdit3("color##Point 1", glm::value_ptr(pointLightColor[0]));
             }
 
             if(ImGui::CollapsingHeader("Point 2")) {
@@ -253,7 +229,6 @@ int main()
                 ImGui::DragFloat("x##Point 2", &pointLightPositions[1].x, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("y##Point 2", &pointLightPositions[1].y, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("z##Point 2", &pointLightPositions[1].z, 0.1f);
-                ImGui::ColorEdit3("color##Point 2", glm::value_ptr(pointLightColor[1]));
             }
 
             if(ImGui::CollapsingHeader("Point 3")) {
@@ -261,7 +236,6 @@ int main()
                 ImGui::DragFloat("x##Point 3", &pointLightPositions[2].x, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("y##Point 3", &pointLightPositions[2].y, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("z##Point 3", &pointLightPositions[2].z, 0.1f);
-                ImGui::ColorEdit3("color##Point 3", glm::value_ptr(pointLightColor[2]));
             }
 
             if(ImGui::CollapsingHeader("Point 4")) {
@@ -269,24 +243,17 @@ int main()
                 ImGui::DragFloat("x##Point 4", &pointLightPositions[3].x, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("y##Point 4", &pointLightPositions[3].y, 0.1f); ImGui::SameLine();
                 ImGui::DragFloat("z##Point 4", &pointLightPositions[3].z, 0.1f);
-                ImGui::ColorEdit3("color##Point 4", glm::value_ptr(pointLightColor[3]));
             }
 
 
             ImGui::Text("Point Ambient");
-            ImGui::DragFloat("x##Point Ambient", &pointLight_ambient.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Point Ambient", &pointLight_ambient.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Point Ambient", &pointLight_ambient.z);
+            ImGui::ColorEdit3("ambient##Point", glm::value_ptr(pointLight_ambient));
 
             ImGui::Text("Point Diffuse");
-            ImGui::DragFloat("x##Point Diffuse", &pointLight_diffuse.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Point Diffuse", &pointLight_diffuse.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Point Diffuse", &pointLight_diffuse.z);
+            ImGui::ColorEdit3("diffuse##Point", glm::value_ptr(pointLight_diffuse));
 
             ImGui::Text("Point Specular");
-            ImGui::DragFloat("x##Point Specular", &pointLight_specular.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Point Specular", &pointLight_specular.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Point Specular", &pointLight_specular.z);
+            ImGui::ColorEdit3("specular##Point", glm::value_ptr(pointLight_specular));
 
             ImGui::Text("Point Constant");
             ImGui::DragFloat("constant##Point Constant", &pointLight_constant);
@@ -307,19 +274,13 @@ int main()
         if(ImGui::CollapsingHeader("Spot Light")) {
 
             ImGui::Text("Spot Ambient");
-            ImGui::DragFloat("x##Spot Ambient", &spotLight_ambient.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Spot Ambient", &spotLight_ambient.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Spot Ambient", &spotLight_ambient.z);
+            ImGui::ColorEdit3("ambient##Spot", glm::value_ptr(spotLight_ambient));
 
             ImGui::Text("Spot Diffuse");
-            ImGui::DragFloat("x##Spot Diffuse", &spotLight_specular.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Spot Diffuse", &spotLight_specular.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Spot Diffuse", &spotLight_specular.z);
+            ImGui::ColorEdit3("diffuse##Spot", glm::value_ptr(spotLight_diffuse));
 
             ImGui::Text("Spot Specular");
-            ImGui::DragFloat("x##Spot Specular", &spotLight_specular.x); ImGui::SameLine();
-            ImGui::DragFloat("y##Spot Specular", &spotLight_specular.y); ImGui::SameLine();
-            ImGui::DragFloat("z##Spot Specular", &spotLight_specular.z);
+            ImGui::ColorEdit3("specular##Spot", glm::value_ptr(spotLight_specular));
 
             ImGui::Text("Spot Constant");
             ImGui::DragFloat("constant##Point Constant", &spotLight_constant);
@@ -345,8 +306,7 @@ int main()
 //        shader.setMat4("vModel", model);
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
-        shader.setInt("material.diffuse", 0);
-        shader.setInt("material.specular", 1);
+
         shader.setFloat("material.shininess", materialShininess);
         shader.setFloat3("viewPos", fpsView.m_camera.m_front);
 
@@ -402,6 +362,10 @@ int main()
         glBindTexture(GL_TEXTURE_2D, texture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
+        glActiveTexture(GL_TEXTURE2);
+        glBindTexture(GL_TEXTURE_2D, texture3);
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D, texture3);
 
         vertexArray.bind();
 
@@ -416,9 +380,6 @@ int main()
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
 
-
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
 //        glBindTexture(GL_TEXTURE_2D, 0);
 
         shader2.bind();
@@ -430,8 +391,8 @@ int main()
             model = glm::mat4(1.0f);
             model = glm::translate(model, pointLightPositions[i]);
             model = glm::scale(model, glm::vec3(0.2f));
-            shader.setMat4("vModel", model);
-            shader2.setFloat3("lightColor", pointLightColor[i]);
+            shader2.setMat4("vModel", model);
+            shader2.setFloat3("lightColor", pointLight_diffuse);
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
         vertexArray.unbind();
