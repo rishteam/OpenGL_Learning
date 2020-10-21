@@ -38,6 +38,21 @@ sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::
 
 glm::vec3 lightColor(1.f, 1.f, 1.f);
 glm::vec3 objectColor(1, 0.5, 0.31);
+glm::vec3 lightDir(1.f, -2.f, 1.f);
+
+glm::vec3 cubePositions[] = {
+        glm::vec3( 0.0f,  0.0f,  0.0f),
+        glm::vec3( 2.0f,  5.0f, -15.0f),
+        glm::vec3(-1.5f, -2.2f, -2.5f),
+        glm::vec3(-3.8f, -2.0f, -12.3f),
+        glm::vec3( 2.4f, -0.4f, -3.5f),
+        glm::vec3(-1.7f,  3.0f, -7.5f),
+        glm::vec3( 1.3f, -2.0f, -2.5f),
+        glm::vec3( 1.5f,  2.0f, -2.5f),
+        glm::vec3( 1.5f,  0.2f, -1.5f),
+        glm::vec3(-1.3f,  1.0f, -1.5f)
+};
+
 int main()
 {
     std::cout << std::filesystem::current_path();
@@ -59,8 +74,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     // Load shader
-    Shader shader("shader/8.4.Lighting_maps/lighting.vs", "shader/8.4.Lighting_maps/lighting.fs");
-    Shader shader2("shader/8.4.Lighting_maps/light_cube.vs", "shader/8.4.Lighting_maps/light_cube.fs");
+    Shader shader("shader/8.5.Lighting_casters/lighting.vs", "shader/8.5.Lighting_casters/lighting.fs");
+    Shader shader2("shader/8.5.Lighting_casters/light_cube.vs", "shader/8.5.Lighting_casters/light_cube.fs");
     VertexArray vertexArray;
     BufferLayout layout = {
             {ShaderDataType::Float3, "aPos"},
@@ -124,20 +139,20 @@ int main()
         ImGui::Begin("Matrix");
         //
         glm::mat4 model(1.f), view(1.f), projection(1.f);
-        ImGui::Text("Model");
+//        ImGui::Text("Model");
         static float rotate_x = 0.0f, rotate_y = 0.f, rotate_z = 0.f;
         static glm::vec3 obTrans = {-1.f, 1.f, 1.f};
         float step = 100 * stClk.getElapsedTime().asSeconds();
-        ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
-        ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
-        ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);
-        ImGui::DragFloat("Pos x", &obTrans.x, .1);
-        ImGui::DragFloat("Pos y", &obTrans.y, .1);
-        ImGui::DragFloat("pos z", &obTrans.z, .1);
-        model = glm::translate(model, obTrans);
-        model = glm::rotate(model, glm::radians(rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
+//        ImGui::DragFloat("Rotate x", &rotate_x, 1.0, -360, 360);
+//        ImGui::DragFloat("Rotate y", &rotate_y, 1.0 , - 360, 360);
+//        ImGui::DragFloat("Rotate z", &rotate_z, 1.0, - 360, 360);
+//        ImGui::DragFloat("Pos x", &obTrans.x, .1);
+//        ImGui::DragFloat("Pos y", &obTrans.y, .1);
+//        ImGui::DragFloat("pos z", &obTrans.z, .1);
+//        model = glm::translate(model, obTrans);
+//        model = glm::rotate(model, glm::radians(rotate_x), glm::vec3(1.0f, 0.0f, 0.0f));
+//        model = glm::rotate(model, glm::radians(rotate_y), glm::vec3(0.0f, 1.0f, 0.0f));
+//        model = glm::rotate(model, glm::radians(rotate_z), glm::vec3(0.0f, 0.0f, 1.0f));
         ImGui::Separator();
         static float trans[3] = {0.0f, 0.0f, 0.0f};
         ImGui::Text("View");
@@ -185,6 +200,14 @@ int main()
         ImGui::DragFloat("z", &lightPos.z, 0.1f);
         ImGui::PopItemWidth();
 
+        static float cutOff = 12.5f;
+        ImGui::Text("Flash Light cutOff");
+        ImGui::DragFloat("cutOff##Light", &cutOff, 0.1, 0, 60);
+
+        static float outerCutOff = 17.5f;
+        ImGui::Text("Flash Light outerCutOff");
+        ImGui::DragFloat("outerCutOff##Light", &outerCutOff, 0.1, 0, 60);
+
         ImGui::PushItemWidth(100);
         static glm::vec3 lightAmbient(0.2f, 0.2f, 0.2f);
         ImGui::Text("lightAmbient");
@@ -192,7 +215,7 @@ int main()
         ImGui::DragFloat("y##lightAmbient", &lightAmbient.y, 0.1); ImGui::SameLine();
         ImGui::DragFloat("z##lightAmbient", &lightAmbient.z, 0.1);
 
-        static glm::vec3 lightDiffuse(0.5f, 0.5f, 0.5f);
+        static glm::vec3 lightDiffuse(0.8f, 0.8f, 0.8f);
         ImGui::Text("lightDiffuse");
         ImGui::DragFloat("x##lightDiffuse", &lightDiffuse.x, 0.1); ImGui::SameLine();
         ImGui::DragFloat("y##lightDiffuse", &lightDiffuse.y, 0.1); ImGui::SameLine();
@@ -212,7 +235,7 @@ int main()
         fpsView.update(dt);
         // Upload uniforms
         shader.bind();
-        shader.setMat4("vModel", model);
+//        shader.setMat4("vModel", model);
         shader.setMat4("vView", view);
         shader.setMat4("vProjection", projection);
 //        shader.setFloat3("lightColor", lightColor);
@@ -224,35 +247,47 @@ int main()
         shader.setFloat3("light.ambient", lightAmbient);
         shader.setFloat3("light.diffuse", lightDiffuse);
         shader.setFloat3("light.specular", lightSpecular);
-        shader.setFloat3("light.position", lightPos);
+        shader.setFloat3("light.position", fpsView.m_camera.m_pos);
+        shader.setFloat3("light.direction", fpsView.m_camera.m_front);
+        shader.setFloat("light.cutOff", glm::cos(glm::radians(cutOff)));
+        shader.setFloat("light.outerCutOff", glm::cos(glm::radians(outerCutOff)));
+        shader.setFloat("light.constant", 1.f);
+        shader.setFloat("light.linear", 0.09f);
+        shader.setFloat("light.quadratic", 0.032f);
 
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, texture);
         glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, texture2);
 
-//        glActiveTexture(GL_TEXTURE0);
-//        t1.bind();
-//        glActiveTexture(GL_TEXTURE0);
-//        t2.bind();
-
         vertexArray.bind();
+
+        for(int i = 0 ; i < 10 ; i++) {
+
+            glm::mat4 model(1.f);
+            model = glm::translate(model, cubePositions[i]);
+            float angle = 20.f * i;
+            model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
+            shader.setMat4("vModel", model);
+
+            glDrawArrays(GL_TRIANGLES, 0, 36);
+        }
+
+
         glDrawArrays(GL_TRIANGLES, 0, 36);
         shader.unbind();
-//        t1.unbind();
-//        t2.unbind();
 
-        shader2.bind();
-        shader2.setMat4("vView", view);
-        shader2.setMat4("vProjection", projection);
-        model = glm::mat4(1.f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f));
-        shader2.setMat4("vModel", model);
-        shader2.setFloat3("lightColor", lightColor);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
+//        shader2.bind();
+//        shader2.setMat4("vView", view);
+//        shader2.setMat4("vProjection", projection);
+//        model = glm::mat4(1.f);
+//        model = glm::translate(model, lightPos);
+//        model = glm::scale(model, glm::vec3(0.2f));
+//        shader2.setMat4("vModel", model);
+//        shader2.setFloat3("lightColor", lightColor);
+//        glDrawArrays(GL_TRIANGLES, 0, 36);
         vertexArray.unbind();
-        shader2.unbind();
+//        shader2.unbind();
 
         window.pushGLStates();
         {
