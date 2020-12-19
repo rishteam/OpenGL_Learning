@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <cassert>
 
-#include "buffer.h"
+#include "Buffer.h"
 
 GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type);
 

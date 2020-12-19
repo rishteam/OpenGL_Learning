@@ -14,10 +14,11 @@
 
 #include <imgui.h>
 #include <imgui-SFML.h>
-#include "shader.h"
-#include "VertexArray.h"
-#include "camera.h"
-#include "player.h"
+
+#include <VertexArray.h>
+#include <Shader.h>
+#include <Camera.h>
+#include <Player.h>
 
 #define WIRE_MODE 0
 
@@ -26,38 +27,6 @@ void init()
     setvbuf(stdin, nullptr, _IONBF, 0);
     setvbuf(stdout, nullptr, _IONBF, 0);
 }
-// Vertex Shader
-const char *vertexShaderSource = R"glsl(
-#version 450 core
-layout (location = 0) in vec3 aPos;
-
-uniform mat4 vModel;
-uniform mat4 vView;
-uniform mat4 vProjection;
-
-void main()
-{
-    gl_Position = vProjection * vView * vModel * vec4(aPos, 1.0);
-}
-)glsl";
-// Fragment Shader
-const char *fragmentShaderSoucre = R"glsl(
-#version 450 core
-out vec4 FragColor;
-
-
-uniform sampler2D tex1;
-uniform sampler2D tex2;
-
-uniform vec4 fColor;
-uniform float fMix;
-
-void main()
-{
-    vec4 resultColor = fColor;
-    FragColor = resultColor;
-}
-)glsl";
 
 #include "vertices.h"
 

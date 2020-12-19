@@ -14,11 +14,11 @@
 
 #include <imgui.h>
 #include <imgui-SFML.h>
-#include "shader.h"
-#include "VertexArray.h"
-#include "camera.h"
-#include "player.h"
-#include "Texture2D.h"
+
+#include <Shader.h>
+#include <VertexArray.h>
+#include <Player.h>
+#include <Texture.h>
 
 #define WIRE_MODE 0
 

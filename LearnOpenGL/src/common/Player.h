@@ -8,7 +8,7 @@
 #include <imgui.h>
 #include <imgui-SFML.h>
 
-#include "camera.h"
+#include "Camera.h"
 
 extern sf::RenderWindow window;
 
@@ -43,7 +43,7 @@ public:
             {
             case sf::Keyboard::LAlt:
                 isMouseCaptured = !isMouseCaptured;
-                sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2}, window);
+                sf::Mouse::setPosition({static_cast<int>(window.getSize().x / 2), static_cast<int>(window.getSize().y / 2)}, window);
                 break;
             }
         }
@@ -79,7 +79,7 @@ public:
             if (window.getSize().y % 2 != 0)
                 screenCenter.y += 1;
             // lock the cursor pos
-            sf::Mouse::setPosition({window.getSize().x / 2, window.getSize().y / 2}, window);
+            sf::Mouse::setPosition({static_cast<int>(window.getSize().x / 2), static_cast<int>(window.getSize().y / 2)}, window);
             // calc the offset
             glm::vec2 off = nowCursorPos - screenCenter;
             ImGui::Begin("Matrix");

@@ -14,11 +14,11 @@
 
 #include <imgui.h>
 #include <imgui-SFML.h>
-#include "shader.h"
-#include "VertexArray.h"
-#include "camera.h"
-#include "player.h"
-#include "Texture2D.h"
+
+#include <Shader.h>
+#include <VertexArray.h>
+#include <Player.h>
+#include <Texture.h>
 
 #define WIRE_MODE 0
 
@@ -93,9 +93,9 @@ int main()
     Shader shader2("shader/8.6.Multiple_lights/light_cube.vs", "shader/8.6.Multiple_lights/light_cube.fs");
     VertexArray vertexArray;
     BufferLayout layout = {
-            {ShaderDataType::Float3, "aPos"},
-            {ShaderDataType::Float3, "aNormal"},
-            {ShaderDataType::Float2, "aTexCoords"}
+        {ShaderDataType::Float3, "aPos"},
+        {ShaderDataType::Float3, "aNormal"},
+        {ShaderDataType::Float2, "aTexCoords"}
     };
     VertexBuffer vertex(vertices, sizeof(vertices));
     vertex.setLayout(layout);

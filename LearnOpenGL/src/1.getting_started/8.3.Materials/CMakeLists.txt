@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
 set(CMAKE_CXX_STANDARD 17)
 project(8.3.Materials)
-add_executable(${PROJECT_NAME} main.cpp shader.cpp buffer.cpp VertexArray.cpp camera.h player.h)
+add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} glad::glad)
+target_link_libraries(${PROJECT_NAME} common::common)
 
 # Link SFML
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
