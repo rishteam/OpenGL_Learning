@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(2.2.hello_triangle_indexed)
-add_executable(${PROJECT_NAME} main.cpp ../8.1.Colors/main.cpp)
+add_executable(${PROJECT_NAME} main.cpp)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 
 # Link SFML
