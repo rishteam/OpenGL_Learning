@@ -10,4 +10,7 @@ find_package(glfw3)
 add_library(project_libraries INTERFACE)
 target_link_libraries(project_libraries INTERFACE glad::glad glfw)
 
-add_subdirectory(ep_1_window)
+list_subdir(SUBDIRS ${PROJECT_SOURCE_DIR}/src)
+foreach(subdir ${SUBDIRS})
+    add_subdirectory(${subdir})
+endforeach()
