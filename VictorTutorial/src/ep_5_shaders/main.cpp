@@ -77,6 +77,8 @@ int main()
     IndexBuffer::Clear();
     VertexBuffer::Clear();
 
+    GLuint scaleID = glGetUniformLocation(shader->GetID(), "scale");
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -85,6 +87,8 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         shader->Activate();
+        glUniform1f(scaleID, sin(glfwGetTime()));
+
         vao->Bind();
         // Draw primitives, number of indices, type, index of indices
         glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);

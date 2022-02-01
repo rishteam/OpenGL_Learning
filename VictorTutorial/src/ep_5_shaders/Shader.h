@@ -18,6 +18,9 @@ public:
     void Deactivate() const;
 
     void Delete();
+
+    // TODO: DELETE THIS
+    GLuint GetID() const { return m_ID; }
 private:
     GLuint m_ID;
 };
