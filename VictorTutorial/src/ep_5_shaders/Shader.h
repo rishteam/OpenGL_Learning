@@ -23,6 +23,8 @@ public:
     GLuint GetID() const { return m_ID; }
 private:
     GLuint m_ID;
+
+    void CheckError(GLuint shader, const char *type);
 };
 
 
