@@ -5,4 +5,5 @@ project(VictorTutorial)
 include(cmake/macros.cmake)
 
 add_subdirectory(deps/glad)
+add_subdirectory(deps/stb)
 add_subdirectory(src)

@@ -1,0 +1,3 @@
+[submodule "VictorTutorial/deps/stb"]
+	path = VictorTutorial/deps/stb
+	url = https://github.com/nothings/stb.git

@@ -8,7 +8,7 @@ target_compile_features(project_options INTERFACE cxx_std_17) # C++17
 find_package(glfw3)
 
 add_library(project_libraries INTERFACE)
-target_link_libraries(project_libraries INTERFACE glad::glad glfw)
+target_link_libraries(project_libraries INTERFACE glad::glad glfw stb)
 
 list_subdir(SUBDIRS ${PROJECT_SOURCE_DIR}/src)
 foreach(subdir ${SUBDIRS})
