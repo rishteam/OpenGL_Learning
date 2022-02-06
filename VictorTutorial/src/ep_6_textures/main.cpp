@@ -12,22 +12,34 @@
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
 #include "Shader.h"
+#include "Utils.h"
 
 GLfloat vertices[] =
-      { //               COORDINATES                  /     COLORS              //
-        -0.5f, -0.5f * float(sqrt(3)) * 1 / 3, 0.0f,     0.8f, 0.3f,  0.02f,    // [0] Lower left corner
-        0.5f, -0.5f * float(sqrt(3)) * 1 / 3, 0.0f,     0.8f, 0.3f,  0.02f,     // [1] Lower right corner
-        0.0f,  0.5f * float(sqrt(3)) * 2 / 3, 0.0f,     1.0f, 0.6f,  0.32f,     // [2] Upper corner
-        -0.25f, 0.5f * float(sqrt(3)) * 1 / 6, 0.0f,     0.9f, 0.45f, 0.17f,    // [3] Inner left
-        0.25f, 0.5f * float(sqrt(3)) * 1 / 6, 0.0f,     0.9f, 0.45f, 0.17f,     // [4] Inner right
-        0.0f, -0.5f * float(sqrt(3)) * 1 / 3, 0.0f,     0.8f, 0.3f,  0.02f      // [5] Inner down
+{
+    // COORDINATES       /     COLORS          /   TexCoord
+    -0.5f, -0.5f, 0.0f,     1.0f, 0.0f, 0.0f,	0.0f, 0.0f, // 0 Lower left corner
+    -0.5f,  0.5f, 0.0f,     0.0f, 1.0f, 0.0f,	0.0f, 1.0f, // 1 Upper left corner
+    0.5f,  0.5f, 0.0f,     0.0f, 0.0f, 1.0f,	1.0f, 1.0f, // 2 Upper right corner
+    0.5f, -0.5f, 0.0f,     1.0f, 1.0f, 1.0f,	1.0f, 0.0f  // 3 Lower right corner
 };
 
 GLuint indices[] = {
-    0, 3, 5,
-    3, 2, 4,
-    5, 4, 1
+    0, 2, 1, // Upper triangle
+    0, 3, 2 // Lower triangle
 };
+
+void GLAPIENTRY MessageCallback( GLenum source,
+                                 GLenum type,
+                                 GLuint id,
+                                 GLenum severity,
+                                 GLsizei length,
+                                 const GLchar* message,
+                                 const void* userParam )
+{
+    fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+             ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+             type, severity, message );
+}
 
 int main()
 {
@@ -36,6 +48,7 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 
     GLFWwindow *window = glfwCreateWindow(800, 600, "OpenGL", nullptr, nullptr);
     if(window == nullptr)
@@ -53,6 +66,11 @@ int main()
 
     glViewport(0, 0, 800, 600);
 
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
+
+    auto image = LoadImage("../assets/dev.png");
+
     /* Load and create the shaders */
     Ref<Shader> shader = MakeRef<Shader>();
     shader->Load("default.vert", "default.frag");
@@ -69,8 +87,9 @@ int main()
     ibo->Store(indices, sizeof(indices));
 
     /* Setting Vertex Attribute Array */
-    vao->BindVertexAttribute(0, 3, GL_FLOAT, 6 * sizeof(float), (void*)0);
-    vao->BindVertexAttribute(1, 3, GL_FLOAT, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    vao->BindVertexAttribute(0, 3, GL_FLOAT, 8 * sizeof(float), (void*)0);
+    vao->BindVertexAttribute(1, 3, GL_FLOAT, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    vao->BindVertexAttribute(2, 2, GL_FLOAT, 8 * sizeof(float), (void*)(6 * sizeof(float)));
 
     /* Unbind things */
     vao->Unbind();
@@ -79,19 +98,42 @@ int main()
 
     GLuint scaleID = glGetUniformLocation(shader->GetID(), "scale");
 
+    GLuint texture;
+    glGenTextures(1, &texture);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    glTexParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    printf(">> %d %d %d %p\n", image->width, image->height, image->numChannel, image->bytes);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->bytes);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    auto texUniform = glGetUniformLocation(shader->GetID(), "tex0");
+    shader->Activate();
+    glUniform1i(texUniform, 0); // TEST
+
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
         //
-        glClearColor(1.f, 0.5f, 0.5f, 1.f);
+        glClearColor(0.5f, 0.5f, 0.5f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
+        glBindTexture(GL_TEXTURE_2D, texture);
         shader->Activate();
-        glUniform1f(scaleID, sin(glfwGetTime()));
+        glUniform1f(scaleID, 1.f);
 
         vao->Bind();
         // Draw primitives, number of indices, type, index of indices
-        glDrawElements(GL_TRIANGLES, 9, GL_UNSIGNED_INT, 0);
+        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         glfwSwapBuffers(window);
     }

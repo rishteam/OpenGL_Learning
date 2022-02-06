@@ -3,6 +3,8 @@
 #include <fstream>
 #include <iostream>
 
+#include <stb_image.h>
+
 std::string ReadFileContent(const std::filesystem::path &target)
 {
     std::filesystem::path path;
@@ -21,4 +23,18 @@ std::string ReadFileContent(const std::filesystem::path &target)
 
     std::string content((std::istreambuf_iterator<char>(file)), (std::istreambuf_iterator<char>())); // read contents
     return content;
+}
+
+Ref<Image> LoadImage(const std::filesystem::path &path)
+{
+    Ref<Image> image = MakeRef<Image>();
+    stbi_set_flip_vertically_on_load(true);
+    image->bytes = stbi_load(path.string().c_str(), &image->width, &image->height, &image->numChannel, 0);
+    return image;
+}
+
+Image::~Image()
+{
+    if(bytes)
+        stbi_image_free(bytes);
 }
