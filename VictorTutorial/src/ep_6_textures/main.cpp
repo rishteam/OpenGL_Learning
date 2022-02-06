@@ -13,6 +13,7 @@
 #include "IndexBuffer.h"
 #include "Shader.h"
 #include "Utils.h"
+#include "Texture.h"
 
 GLfloat vertices[] =
 {
@@ -69,11 +70,12 @@ int main()
     glEnable(GL_DEBUG_OUTPUT);
     glDebugMessageCallback(MessageCallback, 0);
 
-    auto image = LoadImage("../assets/dev.png");
-
     /* Load and create the shaders */
     Ref<Shader> shader = MakeRef<Shader>();
     shader->Load("default.vert", "default.frag");
+
+    Ref<Texture> texture = MakeRef<Texture>("../assets/dev.png", GL_TEXTURE_2D, GL_TEXTURE0, GL_RGB, GL_UNSIGNED_BYTE);
+    texture->TexUnit(shader, "tex0", 0);
 
     /* Create VAO, VBO, and EBO */
     Ref<VertexArray> vao = MakeRef<VertexArray>();
@@ -98,28 +100,6 @@ int main()
 
     GLuint scaleID = glGetUniformLocation(shader->GetID(), "scale");
 
-    GLuint texture;
-    glGenTextures(1, &texture);
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexParameteri(texture, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(texture, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(texture, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(texture, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    printf(">> %d %d %d %p\n", image->width, image->height, image->numChannel, image->bytes);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, image->width, image->height, 0, GL_RGB, GL_UNSIGNED_BYTE, image->bytes);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    auto texUniform = glGetUniformLocation(shader->GetID(), "tex0");
-    shader->Activate();
-    glUniform1i(texUniform, 0); // TEST
-
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
@@ -127,7 +107,7 @@ int main()
         glClearColor(0.5f, 0.5f, 0.5f, 1.f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        texture->Bind();
         shader->Activate();
         glUniform1f(scaleID, 1.f);
 

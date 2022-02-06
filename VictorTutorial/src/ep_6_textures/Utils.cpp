@@ -29,7 +29,21 @@ Ref<Image> LoadImage(const std::filesystem::path &path)
 {
     Ref<Image> image = MakeRef<Image>();
     stbi_set_flip_vertically_on_load(true);
+
+    if(!std::filesystem::exists(path))
+    {
+        printf("Failed to load image: %s. Reason: Do not exist", path.string().c_str());
+        return image;
+    }
+
     image->bytes = stbi_load(path.string().c_str(), &image->width, &image->height, &image->numChannel, 0);
+
+    if(!image->bytes)
+    {
+        printf("Failed to load image: %s. Reason: stbi_load() error", path.string().c_str());
+        return image;
+    }
+
     return image;
 }
 

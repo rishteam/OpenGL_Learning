@@ -12,8 +12,8 @@ std::string ReadFileContent(const std::filesystem::path &target);
 
 struct Image
 {
-    int width, height, numChannel;
-    unsigned char *bytes;
+    int width = 0, height = 0, numChannel = 0;
+    unsigned char *bytes = nullptr;
 
     Image() = default;
     ~Image();
