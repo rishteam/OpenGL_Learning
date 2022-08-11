@@ -16,7 +16,10 @@ Texture2D::Texture2D(std::string path)
     height_ = image.getSize().y;
     glCreateTextures(GL_TEXTURE_2D, 1, &textureID_);
     glBindTexture(GL_TEXTURE_2D, textureID_);
-    glTextureStorage2D(textureID_, 1, GL_RGBA8, width_, height_);
+    if(path.find(".png") != std::string::npos)
+        glTextureStorage2D(textureID_, 1, GL_RGBA8, width_, height_);
+    else
+        glTextureStorage2D(textureID_, 1, GL_RGB8, width_, height_);
 
     glTextureParameteri(textureID_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTextureParameteri(textureID_, GL_TEXTURE_MAG_FILTER, GL_NEAREST);

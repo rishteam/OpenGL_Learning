@@ -99,7 +99,7 @@ int main()
     window.setActive(true);
     init();
 
-    // Load shader
+    // Load m_ShaderID
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
     uint32_t program;
@@ -125,7 +125,7 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    // glBindAttribLocation(program, 0, "aPos");
+    // glBindAttribLocation(m_ShaderID, 0, "aPos");
     uint32_t aPos_attrib_index = glGetAttribLocation(program, "aPos");
     printf("aPos location = %d\n", aPos_attrib_index);
     glVertexAttribPointer(

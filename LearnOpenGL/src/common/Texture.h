@@ -19,6 +19,8 @@ public:
     void bind(uint32_t slot = 0);
     void unbind() const;
 
+    uint32_t getTexID() { return textureID_; }
+
 private:
 
     std::string path;

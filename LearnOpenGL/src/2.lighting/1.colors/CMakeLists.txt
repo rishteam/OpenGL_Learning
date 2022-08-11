@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(3.4.lab2)
-add_executable(${PROJECT_NAME} main.cpp shader.cpp buffer.cpp VertexArray.cpp)
+project(2.1.colors)
+add_executable(${PROJECT_NAME} main.cpp)
+target_link_libraries(${PROJECT_NAME} common::common)
 target_link_libraries(${PROJECT_NAME} glad::glad)
 
 # Link SFML
@@ -14,9 +15,8 @@ target_link_libraries(${PROJECT_NAME} ${OPENGL_LIBRARIES})
 # imgui-SFML
 find_package(ImGui-SFML REQUIRED)
 target_link_libraries(${PROJECT_NAME} ImGui-SFML::ImGui-SFML)
-# glm
-find_package(glm REQUIRED)
-target_link_libraries(${PROJECT_NAME} glm)
-# Copy m_ShaderID files
-file(GLOB SHADER_FILES "*.fs" "*.vs")
-file(COPY ${SHADER_FILES} DESTINATION ${CMAKE_BINARY_DIR})
+find_package(fmt REQUIRED)
+target_link_libraries(${PROJECT_NAME} fmt::fmt)
+
+file(GLOB NEEDED_FILES "*.png" "*.jpg")
+file(COPY ${NEEDED_FILES} DESTINATION ${CMAKE_BINARY_DIR})

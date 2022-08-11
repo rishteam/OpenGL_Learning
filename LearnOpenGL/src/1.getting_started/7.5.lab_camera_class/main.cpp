@@ -146,7 +146,7 @@ int main()
     // Depth
     glEnable(GL_DEPTH_TEST);
 
-    // Load shader
+    // Load m_ShaderID
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
     uint32_t program;
@@ -199,8 +199,8 @@ int main()
         return texture;
     };
 
-    uint32_t wall_tex = LoadTexture("1.jpg");
-    uint32_t lambda_tex = LoadTexture("1.png");
+    uint32_t wall_tex = LoadTexture("assets/1.jpg");
+    uint32_t lambda_tex = LoadTexture("assets/1.png");
 
     glUseProgram(program);
     glUniform1i(glGetUniformLocation(program, "tex1"), 0);

@@ -17,39 +17,39 @@ class Shader
 public:
     Shader(const char *vertPath, const char *fragPath)
     {
-        assert(LoadFileContent(vertSource, vertPath) == true);
-        assert(LoadFileContent(fragSource, fragPath) == true);
+        assert(LoadFileContent(m_VertSource, vertPath) == true);
+        assert(LoadFileContent(m_FragSource, fragPath) == true);
 
-        const char *vertSrc = vertSource.c_str();
-        printf("[DEBUG] vertex shader\n%s\n\n", vertSrc);
+        const char *vertSrc = m_VertSource.c_str();
+        printf("[DEBUG] vertex m_ShaderID\n%s\n\n", vertSrc);
         uint32_t vert = CompileShader(GL_VERTEX_SHADER, &vertSrc);
-        const char *fragSrc = fragSource.c_str();
-        printf("[DEBUG] fragment shader\n%s\n\n", fragSrc);
+        const char *fragSrc = m_FragSource.c_str();
+        printf("[DEBUG] fragment m_ShaderID\n%s\n\n", fragSrc);
         uint32_t frag = CompileShader(GL_FRAGMENT_SHADER, &fragSrc);
         assert(vert && frag);
 
-        program = LinkShaderProgram(vert, frag);
-        assert(program);
+        m_ShaderID = LinkShaderProgram(vert, frag);
+        assert(m_ShaderID);
 
         glDeleteShader(vert);
         glDeleteShader(frag);
     }
     ~Shader()
     {
-        glDeleteProgram(program);
+        glDeleteProgram(m_ShaderID);
     }
 
     void bind()
     {
-        glUseProgram(program);
+        glUseProgram(m_ShaderID);
     }
     void unbind()
     {
         glUseProgram(0);
     }
-    uint32_t getShaderID() const { return program; }
+    uint32_t getShaderID() const { return m_ShaderID; }
 
-    int getLocationByName(const std::string &name);
+    int getUniformLocation(const std::string &name);
 
     void setInt(const std::string &name, int value);
     void setIntArray(const std::string &name, int *values, uint32_t count);
@@ -66,6 +66,6 @@ public:
     static uint32_t CompileShader(GLenum type, const char **src);
     static uint32_t LinkShaderProgram(uint32_t vertex, uint32_t fragment);
 private:
-    std::string vertSource, fragSource;
-    uint32_t program = 0;
+    std::string m_VertSource, m_FragSource;
+    uint32_t m_ShaderID = 0;
 };

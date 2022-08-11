@@ -59,7 +59,7 @@ int main()
     window.setActive(true);
     init();
 
-    // Load shader
+    // Load m_ShaderID
     Shader shader("a.vs", "a.fs");
     uint32_t program = shader.getShaderID();
     // Load vertices
@@ -120,7 +120,7 @@ int main()
         shader.setFloat4("uColor", glm::vec4(color[0], color[1], color[2], color[3]));
         shader.setFloat("rotate", rotate_degree);
         shader.setFloat4("posOffset", glm::vec4(off[0], off[1], off[2], off[3]));
-        // shader.setFloat
+        // m_ShaderID.setFloat
         vertexArray.bind();
         glDrawElements(GL_TRIANGLES, index.getCount(), GL_UNSIGNED_INT, 0);
         vertexArray.unbind();

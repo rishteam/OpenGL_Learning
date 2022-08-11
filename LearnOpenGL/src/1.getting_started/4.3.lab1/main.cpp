@@ -130,7 +130,7 @@ int main()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Load shader
+    // Load m_ShaderID
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
     uint32_t program;

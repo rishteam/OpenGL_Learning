@@ -71,7 +71,7 @@ int main()
     window.setActive(true);
     init();
 
-    // Load shader
+    // Load m_ShaderID
     Shader shader("a.vert", "a.frag");
     uint32_t program = shader.getShaderID();
     // Load vertices

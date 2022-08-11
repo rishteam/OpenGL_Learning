@@ -8,6 +8,7 @@ add_library(${PROJECT_NAME}
     Shader.cpp
     Texture.cpp
     VertexArray.cpp
+    Debug.cpp
 )
 add_library(common::common ALIAS common)
 

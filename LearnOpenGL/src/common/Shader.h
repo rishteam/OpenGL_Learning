@@ -15,48 +15,62 @@ bool LoadFileContent(std::string &s, const char *path);
 class Shader
 {
 public:
+    Shader() = default;
+    Shader(const char *shaderPath)
+    {
+        assert(LoadFileContent(m_Src, shaderPath) == true);
+
+        setShaderSource(nullptr);
+    }
     Shader(const char *vertPath, const char *fragPath)
     {
-        assert(LoadFileContent(vertSource, vertPath) == true);
-        assert(LoadFileContent(fragSource, fragPath) == true);
+        assert(LoadFileContent(m_VertSource, vertPath) == true);
+        assert(LoadFileContent(m_FragSource, fragPath) == true);
 
-        const char *vertSrc = vertSource.c_str();
-        printf("[DEBUG] vertex shader\n%s\n\n", vertSrc);
+        const char *vertSrc = m_VertSource.c_str();
+//        printf("[DEBUG] vertex m_ShaderID\n%s\n\n", vertSrc);
         uint32_t vert = CompileShader(GL_VERTEX_SHADER, &vertSrc);
-        const char *fragSrc = fragSource.c_str();
-        printf("[DEBUG] fragment shader\n%s\n\n", fragSrc);
+        const char *fragSrc = m_FragSource.c_str();
+//        printf("[DEBUG] fragment m_ShaderID\n%s\n\n", fragSrc);
         uint32_t frag = CompileShader(GL_FRAGMENT_SHADER, &fragSrc);
         assert(vert && frag);
 
-        program = LinkShaderProgram(vert, frag);
-        assert(program);
+        m_ShaderID = LinkShaderProgram(vert, frag);
+        assert(m_ShaderID);
 
         glDeleteShader(vert);
         glDeleteShader(frag);
     }
     ~Shader()
     {
-        glDeleteProgram(program);
+        glDeleteProgram(m_ShaderID);
     }
+
+    void setShaderSource(const char *src); // combine vs and fs
+    void setShaderSource(const char *vsSrc, const char *fsSrc);
 
     void bind()
     {
-        glUseProgram(program);
+        glUseProgram(m_ShaderID);
     }
     void unbind()
     {
         glUseProgram(0);
     }
-    uint32_t getShaderID() const { return program; }
+    uint32_t getShaderID() const { return m_ShaderID; }
 
-    int getLocationByName(const std::string &name);
+    int getAttribLocation(const std::string &name);
+    int getUniformLocation(const std::string &name);
 
     void setInt(const std::string &name, int value);
     void setIntArray(const std::string &name, int *values, uint32_t count);
     //
     void setFloat(const std::string &name, float value);
+    void setFloatArray(const std::string &name, float *values, uint32_t count);
     void setFloat2(const std::string &name, const glm::vec2 &value);
+    void setFloat2(const std::string &name, float x, float y) { setFloat2(name, glm::vec2(x, y)); }
     void setFloat3(const std::string &name, const glm::vec3 &value);
+    void setFloat3(const std::string &name, float x, float y, float z) { setFloat3(name, glm::vec3(x, y, z)); }
     void setFloat4(const std::string &name, const glm::vec4 &value);
     //
     void setMat2(const std::string &name, const glm::mat2 &matrix);
@@ -65,7 +79,11 @@ public:
 
     static uint32_t CompileShader(GLenum type, const char **src);
     static uint32_t LinkShaderProgram(uint32_t vertex, uint32_t fragment);
+
 private:
-    std::string vertSource, fragSource;
-    uint32_t program = 0;
+    uint32_t compileAndLinkShader();
+
+    std::string m_VertSource, m_FragSource;
+    std::string m_Src;
+    uint32_t m_ShaderID = 0;
 };

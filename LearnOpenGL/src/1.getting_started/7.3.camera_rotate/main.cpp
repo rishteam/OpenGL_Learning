@@ -142,7 +142,7 @@ int main()
     // Depth
     glEnable(GL_DEPTH_TEST);
 
-    // Load shader
+    // Load m_ShaderID
     uint32_t vertexShader = LoadShader(GL_VERTEX_SHADER, vertexShaderSource);
     uint32_t fragmentShader = LoadShader(GL_FRAGMENT_SHADER, fragmentShaderSoucre);
     uint32_t program;

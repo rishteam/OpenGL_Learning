@@ -52,48 +52,48 @@ uint32_t Shader::LinkShaderProgram(uint32_t vertex, uint32_t fragment)
     return program;
 }
 
-int Shader::getLocationByName(const std::string &name)
+int Shader::getUniformLocation(const std::string &name)
 {
-    assert(program > 0);
-    int location = glGetUniformLocation(program, name.c_str());
+    assert(m_ShaderID > 0);
+    int location = glGetUniformLocation(m_ShaderID, name.c_str());
     return location;
 }
 
 void Shader::setInt(const std::string &name, int value)
 {
-    glUniform1i(getLocationByName(name), value);
+    glUniform1i(getUniformLocation(name), value);
 }
 void Shader::setIntArray(const std::string &name, int *values, uint32_t count)
 {
-    glUniform1iv(getLocationByName(name), count, values);
+    glUniform1iv(getUniformLocation(name), count, values);
 }
 //
 void Shader::setFloat(const std::string &name, float value)
 {
-    glUniform1f(getLocationByName(name), value);
+    glUniform1f(getUniformLocation(name), value);
 }
 void Shader::setFloat2(const std::string &name, const glm::vec2 &value)
 {
-    glUniform2f(getLocationByName(name), value.x, value.y);
+    glUniform2f(getUniformLocation(name), value.x, value.y);
 }
 void Shader::setFloat3(const std::string &name, const glm::vec3 &value)
 {
-    glUniform3f(getLocationByName(name), value.x, value.y, value.z);
+    glUniform3f(getUniformLocation(name), value.x, value.y, value.z);
 }
 void Shader::setFloat4(const std::string &name, const glm::vec4 &value)
 {
-    glUniform4f(getLocationByName(name), value.x, value.y, value.z, value.w);
+    glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
 }
 //
 void Shader::setMat2(const std::string &name, const glm::mat2 &matrix)
 {
-    glUniformMatrix2fv(getLocationByName(name), 1, GL_FALSE, glm::value_ptr(matrix));
+    glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 void Shader::setMat3(const std::string &name, const glm::mat3 &matrix)
 {
-    glUniformMatrix3fv(getLocationByName(name), 1, GL_FALSE, glm::value_ptr(matrix));
+    glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 void Shader::setMat4(const std::string &name, const glm::mat4 &matrix)
 {
-    glUniformMatrix4fv(getLocationByName(name), 1, GL_FALSE, glm::value_ptr(matrix));
+    glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
