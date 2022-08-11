@@ -21,10 +21,11 @@ float getRatio()
 class FirstPersonView
 {
 public:
-    FirstPersonView()
-        : m_camera(glm::vec3(0, 0, 3), glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), getRatio())
+    FirstPersonView(glm::vec3 pos=glm::vec3{0, 0, 3}, float pitch=0.f, float yaw=0.f)
+        : m_camera(pos, glm::vec3(0, 0, -1), glm::vec3(0, 1, 0), getRatio())
     {
-
+        m_camera.setPitch(pitch);
+        m_camera.setYaw(yaw);
     }
 
     void processEvent(sf::Event e)
@@ -123,6 +124,18 @@ public:
             m_camera.addPitch(-1.f);
     }
 
+    const glm::vec3 getPosition()
+    {
+        return m_camera.m_pos;
+    }
+    const float getPitch()
+    {
+        return m_camera.m_pitch;
+    }
+    const float getYaw()
+    {
+        return m_camera.m_yaw;
+    }
     const glm::mat4 getViewMatrix()
     {
         return m_camera.getViewMatrix();

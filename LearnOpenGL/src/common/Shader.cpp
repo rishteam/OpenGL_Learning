@@ -72,7 +72,7 @@ void Shader::setShaderSource(const char *src)
         m_VertSource = m_Src.substr(vs, m_Src.size()-vs);
     }
 
-    fmt::print("{}\n{}\n\n\n", m_VertSource, m_FragSource);
+//    fmt::print("{}\n{}\n\n\n", m_VertSource, m_FragSource);
 
     compileAndLinkShader();
 }
@@ -98,6 +98,10 @@ int Shader::getUniformLocation(const std::string &name)
 {
     assert(m_ShaderID > 0);
     int location = glGetUniformLocation(m_ShaderID, name.c_str());
+    if(location < 0)
+    {
+        fmt::print("Error: {} not found\n", name);
+    }
     assert(location >= 0);
     return location;
 }

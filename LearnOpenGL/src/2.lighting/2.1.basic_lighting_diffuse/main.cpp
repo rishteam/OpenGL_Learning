@@ -113,7 +113,7 @@ int main()
             ImGui::SFML::Update(window, deltaClock.restart());
 
             ImGui::Begin("Help", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-            ImGui::Text("2.2.basic_lighting");
+            ImGui::Text("2.2.1.basic_lighting_diffuse");
             ImGui::Text("WASD - Move the camera");
             ImGui::Text("Space/Ctrl - Go up / down");
             ImGui::Text("Left Alt - Enable/Disable mouse capture");
