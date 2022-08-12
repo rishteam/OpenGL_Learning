@@ -114,7 +114,7 @@ int main()
 
         // ImGui Update
         static float bgColor[4];
-        static bool wire_mode = false;
+        static bool windowFocus = false;
         static float ambientStrength = 0.1;
         static float specularStrength = 0.5;
         static float shininess = 32;
@@ -140,6 +140,7 @@ int main()
             }
 
             ImGui::Begin("Matrix");
+            windowFocus = ImGui::IsWindowFocused();
             if(ImGui::Button("Rotate"))
                 rotate = !rotate;
             if(ImGui::Button("Move X"))
@@ -184,7 +185,8 @@ int main()
 
         // Update
         {
-            fpsView.update(dt);
+            if(!windowFocus)
+                fpsView.update(dt);
 
             if(rotate)
             {

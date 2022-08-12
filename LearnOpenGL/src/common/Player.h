@@ -48,6 +48,14 @@ public:
                 break;
             }
         }
+        else if(e.type == sf::Event::GainedFocus)
+        {
+            isWindowFocus = true;
+        }
+        else if(e.type == sf::Event::LostFocus)
+        {
+            isWindowFocus = false;
+        }
     }
     void update(float dt)
     {
@@ -98,6 +106,10 @@ public:
         glm::vec3 cameraRight = m_camera.getRightVector();
         glm::vec3 cameraUp = m_camera.getUpVector();
         glm::vec3 &cameraPos = m_camera.m_pos;
+
+        if(!isWindowFocus)
+            return;
+
         if (sf::Keyboard::isKeyPressed(sf::Keyboard::LShift))
             cameraSpeed = dt * 5;
         else
@@ -160,4 +172,5 @@ public:
 
     float mouseWheelDelta = 0.f;
     bool isMouseCaptured = false;
+    bool isWindowFocus = true;
 };
