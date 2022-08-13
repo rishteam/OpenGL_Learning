@@ -180,3 +180,9 @@ uint32_t Shader::compileAndLinkShader()
 
     return m_ShaderID;
 }
+
+void Shader::setTexture(const std::string &name, const Texture2D &tex)
+{
+    setInt(name, m_TextureList.size());
+    m_TextureList.push_back(tex);
+}

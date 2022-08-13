@@ -4,11 +4,12 @@
 #include <fstream>
 #include <string>
 #include <cassert>
+#include <vector>
 
 #include <glad/glad.h>
-#include <SFML/OpenGL.hpp>
-
 #include <glm/glm.hpp>
+
+#include <Texture.h>
 
 bool LoadFileContent(std::string &s, const char *path);
 
@@ -52,6 +53,10 @@ public:
     void bind()
     {
         glUseProgram(m_ShaderID);
+
+        int id = 0;
+        for(auto &tex : m_TextureList)
+            tex.bind(id++);
     }
     void unbind()
     {
@@ -61,6 +66,8 @@ public:
 
     int getAttribLocation(const std::string &name);
     int getUniformLocation(const std::string &name);
+
+    void setTexture(const std::string &name, const Texture2D &tex);
 
     void setInt(const std::string &name, int value);
     void setIntArray(const std::string &name, int *values, uint32_t count);
@@ -83,6 +90,7 @@ public:
 private:
     uint32_t compileAndLinkShader();
 
+    std::vector<Texture2D> m_TextureList;
     std::string m_VertSource, m_FragSource;
     std::string m_Src;
     uint32_t m_ShaderID = 0;
