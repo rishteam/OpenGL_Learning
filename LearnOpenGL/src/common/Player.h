@@ -148,6 +148,7 @@ public:
     {
         return m_camera.m_yaw;
     }
+    const glm::vec3 getFrontVector() const { return m_camera.getFrontVector(); }
     const glm::mat4 getViewMatrix()
     {
         return m_camera.getViewMatrix();
