@@ -1,3 +1,6 @@
 [submodule "VictorTutorial/deps/stb"]
 	path = VictorTutorial/deps/stb
 	url = https://github.com/nothings/stb.git
+[submodule "LearnOpenGL/deps/assimp"]
+	path = LearnOpenGL/deps/assimp
+	url = https://github.com/assimp/assimp.git
