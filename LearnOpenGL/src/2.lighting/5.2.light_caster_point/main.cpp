@@ -330,32 +330,32 @@ int main()
             }
 
             // phong with diffuse & specular map
-            {
-                box.bind();
-                model = glm::mat4(1.f);
-                model = glm::translate(model, glm::vec3(-3.f, 0.f, 0.f));
-                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
-                phongDiffuseShader.setMat4("vModel", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-                box.unbind();
-            }
+//            {
+//                box.bind();
+//                model = glm::mat4(1.f);
+//                model = glm::translate(model, glm::vec3(-3.f, 0.f, 0.f));
+//                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
+//                phongDiffuseShader.setMat4("vModel", model);
+//                glDrawArrays(GL_TRIANGLES, 0, 36);
+//                box.unbind();
+//            }
 
             // phong with emission map
-            {
-                box.bind();
-                model = glm::mat4(1.f);
-                model = glm::translate(model, glm::vec3(-3.f, 0.f, 1.5f));
-                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
-                phongEmitShader.setMat4("vModel", model);
-                glDrawArrays(GL_TRIANGLES, 0, 36);
-                box.unbind();
-            }
+//            {
+//                box.bind();
+//                model = glm::mat4(1.f);
+//                model = glm::translate(model, glm::vec3(-3.f, 0.f, 1.5f));
+//                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
+//                phongEmitShader.setMat4("vModel", model);
+//                glDrawArrays(GL_TRIANGLES, 0, 36);
+//                box.unbind();
+//            }
 
             // point light
             {
                 box.bind();
                 model = glm::mat4(1.f);
-                model = glm::translate(model, glm::vec3(-3.f, 0.f, 3.f));
+                model = glm::translate(model, glm::vec3(-3.f, 0.f, 0.f));
                 model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
                 phongPointLightShader.setMat4("vModel", model);
                 glDrawArrays(GL_TRIANGLES, 0, 36);

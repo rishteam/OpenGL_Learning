@@ -79,6 +79,7 @@ public:
     void setFloat3(const std::string &name, const glm::vec3 &value);
     void setFloat3(const std::string &name, float x, float y, float z) { setFloat3(name, glm::vec3(x, y, z)); }
     void setFloat4(const std::string &name, const glm::vec4 &value);
+    void setFloat4(const std::string &name, float x, float y, float z, float w) { setFloat4(name, glm::vec4(x, y, z, w)); }
     //
     void setMat2(const std::string &name, const glm::mat2 &matrix);
     void setMat3(const std::string &name, const glm::mat3 &matrix);
