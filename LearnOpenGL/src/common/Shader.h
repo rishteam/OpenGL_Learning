@@ -5,6 +5,7 @@
 #include <string>
 #include <cassert>
 #include <vector>
+#include <unordered_map>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
@@ -55,8 +56,12 @@ public:
         glUseProgram(m_ShaderID);
 
         int id = 0;
-        for(auto &tex : m_TextureList)
-            tex.bind(id++);
+        for(auto && [name, tex] : m_TextureMap)
+        {
+            setInt(name, id);
+            tex.Bind(id);
+            id++;
+        }
     }
     void unbind()
     {
@@ -91,7 +96,7 @@ public:
 private:
     uint32_t compileAndLinkShader();
 
-    std::vector<Texture2D> m_TextureList;
+    std::unordered_map<std::string, Texture2D> m_TextureMap;
     std::string m_VertSource, m_FragSource;
     std::string m_Src;
     uint32_t m_ShaderID = 0;

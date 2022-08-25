@@ -62,3 +62,14 @@ void IndexBuffer::unbind() const
 {
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
+
+IndexBuffer::IndexBuffer()
+{
+    glCreateBuffers(1, &ebo);
+}
+
+void IndexBuffer::setData(uint32_t *indices, uint32_t count)
+{
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+}

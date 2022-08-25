@@ -1,39 +1,53 @@
-#include <iostream>
-#include <string>
-
 #include "Texture.h"
+
 #include <glad/glad.h>
 #include <SFML/Graphics.hpp>
+
+#include <fmt/printf.h>
+#include <cassert>
 
 Texture2D::Texture2D(std::string path)
 {
     sf::Image image;
-    if(!image.loadFromFile(path)) printf("[Texture2D] Error on loading image");
+    assert(image.loadFromFile(path) == true);
 
     // image.flipVertically();
 
-    width_ = image.getSize().x;
-    height_ = image.getSize().y;
-    glCreateTextures(GL_TEXTURE_2D, 1, &textureID_);
-    glBindTexture(GL_TEXTURE_2D, textureID_);
+    m_Width = image.getSize().x;
+    m_Height = image.getSize().y;
+    glCreateTextures(GL_TEXTURE_2D, 1, &m_TextureID);
+    glBindTexture(GL_TEXTURE_2D, m_TextureID);
     if(path.find(".png") != std::string::npos)
-        glTextureStorage2D(textureID_, 1, GL_RGBA8, width_, height_);
+        glTextureStorage2D(m_TextureID, 1, GL_RGBA8, m_Width, m_Height);
     else
-        glTextureStorage2D(textureID_, 1, GL_RGB8, width_, height_);
+        glTextureStorage2D(m_TextureID, 1, GL_RGB8, m_Width, m_Height);
 
-    glTextureParameteri(textureID_, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTextureParameteri(textureID_, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTextureParameteri(m_TextureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-    glTextureSubImage2D(textureID_, 0, 0, 0, width_, height_, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)image.getPixelsPtr());
+    glTextureSubImage2D(m_TextureID, 0, 0, 0, m_Width, m_Height, GL_RGBA, GL_UNSIGNED_BYTE, (const void*)image.getPixelsPtr());
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture2D::bind(uint32_t slot)
+Texture2D::~Texture2D()
 {
-    glBindTextureUnit(slot, textureID_);
+    if(m_TextureID)
+        glDeleteTextures(1, &m_TextureID);
 }
 
-void Texture2D::unbind() const
+void Texture2D::Bind(uint32_t slot)
+{
+    if(m_TextureID <= 0)
+    {
+        fmt::print("[Error] Failed to Bind texture {}: m_TextureID = 0", m_Name);
+        return;
+    }
+
+    glBindTextureUnit(slot, m_TextureID);
+}
+
+void Texture2D::Unbind() const
 {
     glBindTextureUnit(0, 0);
 }
+

@@ -254,7 +254,7 @@ int main()
 
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -341,7 +341,7 @@ int main()
                 phongSpotLightShader.setFloat("light.quadratic", 0.032f);
             }
 
-            // Draw phong-shaded sphere
+            // Render phong-shaded sphere
             {
                 sphere.bind();
                 model = glm::mat4(1.f);
@@ -413,7 +413,7 @@ int main()
                 box.unbind();
             }
 
-            // Draw light source box
+            // Render light source box
             {
                 boxWithNormal.bind();
                 model = glm::mat4(1.f);

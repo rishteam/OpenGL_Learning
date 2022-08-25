@@ -178,7 +178,7 @@ int main()
         glUseProgram(program);
         glUniform4f(vertexColorLocation, 0.0f, green, 0.0f, 1.0f);
 
-        // Draw elements
+        // Render elements
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

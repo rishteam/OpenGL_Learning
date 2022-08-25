@@ -242,7 +242,7 @@ int main()
 
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -304,7 +304,7 @@ int main()
             phongSunShader.setFloat3("light.diffuse",  diffuse); // 設成希望光的顏色，将光照调暗了一些以搭配场景
             phongSunShader.setFloat3("light.specular", 1.0f, 1.0f, 1.0f); // 通常是白色
 
-            // Draw phong-shaded sphere
+            // Render phong-shaded sphere
             {
                 sphere.bind();
                 model = glm::mat4(1.f);
@@ -365,7 +365,7 @@ int main()
                 box.unbind();
             }
 
-            // Draw light source box
+            // Render light source box
             {
                 boxWithNormal.bind();
                 model = glm::mat4(1.f);

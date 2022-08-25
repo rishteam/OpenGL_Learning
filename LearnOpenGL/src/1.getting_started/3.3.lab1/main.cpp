@@ -201,7 +201,7 @@ int main()
         glUniform4f(posOffset, off[0], off[1], off[2], off[3]);
         glUniform1f(rotateLocation, rotate_degree); // degree to radian
 
-        // Draw elements
+        // Render elements
         glBindVertexArray(vao);
         glDrawElements(GL_TRIANGLES, sizeof(indices)/sizeof(uint32_t), GL_UNSIGNED_INT, 0);
         glBindVertexArray(0);

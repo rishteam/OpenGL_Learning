@@ -9,24 +9,28 @@ class Texture2D
 public:
     Texture2D() = default;
     Texture2D(const std::string path);
-    ~Texture2D()
-    {
-    }
+    ~Texture2D();
 
-    uint32_t getWidth() const { return width_; }
-    uint32_t getHeight() const { return height_; }
+    uint32_t GetWidth() const { return m_Width; }
+    uint32_t GetHeight() const { return m_Height; }
 
-    void bind(uint32_t slot = 0);
-    void unbind() const;
+    void Bind(uint32_t slot = 0);
+    void Unbind() const;
 
-    uint32_t getTexID() { return textureID_; }
+    uint32_t GetTexID() { return m_TextureID; }
 
 private:
+    std::string m_Name;
+    std::string m_Path;
+    uint32_t m_Width;
+    uint32_t m_Height;
+    uint32_t m_TextureID;
+};
 
-    std::string path;
-    uint32_t width_;
-    uint32_t height_;
-    uint32_t textureID_;
+class DiffuseTexture : public Texture2D
+{
+public:
+//    DiffuseTexture(const std::string &path, )
 };
 
 #endif //LEARNOPENGL_TEXTURE_H

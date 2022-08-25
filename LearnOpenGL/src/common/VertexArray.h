@@ -12,7 +12,10 @@ class VertexArray
 {
 public:
     VertexArray();
+    VertexArray(const VertexArray &va);
     ~VertexArray();
+
+    VertexArray& operator=(const VertexArray& va);
 
     void bind() const;
     void unbind() const;

@@ -210,7 +210,7 @@ int main()
             }
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -237,7 +237,7 @@ int main()
             lightSurfaceShader.setMat4("vView", view);
             lightSurfaceShader.setMat4("vProjection", projection);
 
-            // Draw phong-shaded sphere
+            // Render phong-shaded sphere
             {
                 sphere.bind();
                 model = glm::mat4(1.f);
@@ -248,7 +248,7 @@ int main()
                 sphere.unbind();
             }
 
-            // Draw gouraud-shaded sphere
+            // Render gouraud-shaded sphere
             {
                 sphere.bind();
                 model = glm::mat4(1.f);
@@ -259,7 +259,7 @@ int main()
                 sphere.unbind();
             }
 
-            // Draw light source box
+            // Render light source box
             {
                 light.bind();
                 model = glm::mat4(1.f);

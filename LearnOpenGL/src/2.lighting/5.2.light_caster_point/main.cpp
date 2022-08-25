@@ -246,7 +246,7 @@ int main()
 
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -318,7 +318,7 @@ int main()
                 phongPointLightShader.setFloat("light.quadratic", 0.032f);
             }
 
-            // Draw phong-shaded sphere
+            // Render phong-shaded sphere
             {
                 sphere.bind();
                 model = glm::mat4(1.f);
@@ -331,24 +331,24 @@ int main()
 
             // phong with diffuse & specular map
 //            {
-//                box.bind();
+//                box.Bind();
 //                model = glm::mat4(1.f);
 //                model = glm::translate(model, glm::vec3(-3.f, 0.f, 0.f));
 //                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
 //                phongDiffuseShader.setMat4("vModel", model);
 //                glDrawArrays(GL_TRIANGLES, 0, 36);
-//                box.unbind();
+//                box.Unbind();
 //            }
 
             // phong with emission map
 //            {
-//                box.bind();
+//                box.Bind();
 //                model = glm::mat4(1.f);
 //                model = glm::translate(model, glm::vec3(-3.f, 0.f, 1.5f));
 //                model = glm::rotate(model, lightClk/*glm::radians(0.0)*/, glm::vec3(0.f, 1.f, 0.f));
 //                phongEmitShader.setMat4("vModel", model);
 //                glDrawArrays(GL_TRIANGLES, 0, 36);
-//                box.unbind();
+//                box.Unbind();
 //            }
 
             // point light
@@ -390,7 +390,7 @@ int main()
                 box.unbind();
             }
 
-            // Draw light source box
+            // Render light source box
             {
                 boxWithNormal.bind();
                 model = glm::mat4(1.f);

@@ -182,7 +182,7 @@ int main()
             lightPos.x = 1 * sin(move_dt + M_PI);
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -200,7 +200,7 @@ int main()
             lightSurfaceShader.setMat4("vView", view);
             lightSurfaceShader.setMat4("vProjection", projection);
 
-            // Draw box
+            // Render box
             {
                 box.bind();
                 model = glm::translate(model, boxPos);
@@ -211,7 +211,7 @@ int main()
                 box.unbind();
             }
 
-            // Draw light
+            // Render light
             {
                 light.bind();
                 model = glm::translate(model, lightPos);

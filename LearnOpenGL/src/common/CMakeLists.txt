@@ -9,7 +9,8 @@ add_library(${PROJECT_NAME}
     Texture.cpp
     VertexArray.cpp
     Debug.cpp
-)
+    Mesh.cpp
+        )
 add_library(common::common ALIAS common)
 
 target_link_libraries(${PROJECT_NAME} glad::glad)

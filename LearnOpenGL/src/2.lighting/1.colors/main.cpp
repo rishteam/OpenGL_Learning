@@ -144,7 +144,7 @@ int main()
             fpsView.update(dt);
         }
 
-        // Draw
+        // Render
         {
             glClearColor(bgColor[0], bgColor[1], bgColor[2], bgColor[3]);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -155,7 +155,7 @@ int main()
             lightSurfaceShader.setMat4("vView", view);
             lightSurfaceShader.setMat4("vProjection", projection);
 
-            // Draw box
+            // Render box
             {
                 box.bind();
                 model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
@@ -165,7 +165,7 @@ int main()
                 box.unbind();
             }
 
-            // Draw light
+            // Render light
             {
                 light.bind();
                 model = glm::translate(model, glm::vec3(3.0f, 0.f, -3.f));

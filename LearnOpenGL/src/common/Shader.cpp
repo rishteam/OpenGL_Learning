@@ -108,54 +108,54 @@ int Shader::getUniformLocation(const std::string &name)
 
 void Shader::setInt(const std::string &name, int value)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform1i(getUniformLocation(name), value);
 }
 void Shader::setIntArray(const std::string &name, int *values, uint32_t count)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform1iv(getUniformLocation(name), count, values);
 }
 //
 void Shader::setFloat(const std::string &name, float value)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform1f(getUniformLocation(name), value);
 }
 void Shader::setFloatArray(const std::string &name, float *values, uint32_t count)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform1fv(getUniformLocation(name), count, values);
 }
 void Shader::setFloat2(const std::string &name, const glm::vec2 &value)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform2f(getUniformLocation(name), value.x, value.y);
 }
 void Shader::setFloat3(const std::string &name, const glm::vec3 &value)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform3f(getUniformLocation(name), value.x, value.y, value.z);
 }
 void Shader::setFloat4(const std::string &name, const glm::vec4 &value)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniform4f(getUniformLocation(name), value.x, value.y, value.z, value.w);
 }
 //
 void Shader::setMat2(const std::string &name, const glm::mat2 &matrix)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniformMatrix2fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 void Shader::setMat3(const std::string &name, const glm::mat3 &matrix)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniformMatrix3fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 void Shader::setMat4(const std::string &name, const glm::mat4 &matrix)
 {
-    bind();
+    glUseProgram(m_ShaderID);
     glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
 }
 
@@ -183,6 +183,5 @@ uint32_t Shader::compileAndLinkShader()
 
 void Shader::setTexture(const std::string &name, const Texture2D &tex)
 {
-    setInt(name, m_TextureList.size());
-    m_TextureList.push_back(tex);
+    m_TextureMap[name] = tex;
 }

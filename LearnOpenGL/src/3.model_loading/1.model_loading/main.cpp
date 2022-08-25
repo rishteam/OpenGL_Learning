@@ -26,6 +26,8 @@
 #include <Shader.h>
 #include <Debug.h>
 #include <Texture.h>
+#include <Vertex.h>
+#include <Mesh.h>
 
 #include "cube_vertices_normal.h"
 #include "cube_vertices_normal_tex.h"
@@ -33,14 +35,6 @@
 
 uint32_t screenWidth = 1280, screenHeight = 720;
 sf::RenderWindow window(sf::VideoMode(screenWidth, screenHeight), "OpenGL", sf::Style::Default, sf::ContextSettings(24, 8, 4, 4, 4, sf::ContextSettings::Attribute::Debug));
-
-struct Material
-{
-    glm::vec3 ambient;
-    glm::vec3 diffuse;
-    glm::vec3 specular;
-    float shininess;
-};
 
 int main()
 {
@@ -67,32 +61,14 @@ int main()
     Shader phongMultiLightShader("phong_multi_light.glsl");
     Shader lightBulbShader("lightcube.glsl");
 
+    phongMultiLightShader.setFloat("material.shininess", 64.f);
+
     Texture2D boxTex("../../../assets/box.png");
     Texture2D boxSpecularMap("../../../assets/boxOutline.png");
     Texture2D boxEmissionMap("../../../assets/box_emit.png");
     // TODO: fix setTexture for now it's *add* texture
-    phongMultiLightShader.setTexture("material.diffuse", boxTex);
-    phongMultiLightShader.setTexture("material.specular", boxSpecularMap);
-    phongMultiLightShader.setFloat("material.shininess", 64.f);
 
     // Load vertices
-    VertexArray box;
-    VertexBuffer *a = new VertexBuffer;
-    VertexBuffer *b = new VertexBuffer;
-    {
-        a->setData(cube_vertices_normal_tex, cube_vertices_size_normal_tex);
-        a->setLayout({{ShaderDataType::Float3, "aPos"},
-                      {ShaderDataType::Float3, "aNormal"},
-                      {ShaderDataType::Float2, "aTexCoords"}});
-        box.addVertexBuffer(a);
-    }
-    VertexArray boxWithNormal;
-    {
-        b->setData(cube_vertices_normal, sizeof(cube_vertices_normal));
-        b->setLayout({{ShaderDataType::Float3, "aPos"},
-                       {ShaderDataType::Float3, "aNormal"}});
-        boxWithNormal.addVertexBuffer(b);
-    }
     VertexArray sphere;
     VertexBuffer vb2;
     vb2.setData(sphere_vertices, sizeof(float)*sphere_vertices_size);
@@ -101,6 +77,9 @@ int main()
     sphere.addVertexBuffer(&vb2);
     IndexBuffer ib(sphere_indices, sphere_indices_size);
     sphere.setIndexBuffer(&ib);
+
+    CubeMesh texCube(&boxTex, &boxSpecularMap);
+    CubeMesh cube;
 
     FirstPersonView fpsView(glm::vec3{4.8f, 2.0f, 0.119f}, -20.f, 180.0f);
 
@@ -261,7 +240,6 @@ int main()
 
             // boxes
             {
-                box.bind();
                 static glm::vec3 cubePositions[] = {
                     glm::vec3( 0.0f,  0.0f,  0.0f),
                     glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -277,42 +255,29 @@ int main()
 
                 for(int i = 0; i < 10; i++)
                 {
-                    model = glm::mat4(1.f);
-                    model = glm::translate(model, boxSceneOrigin + cubePositions[i]);
-                    float angle = 20.0f * (float)i;
-                    model = glm::rotate(model, glm::radians(angle), glm::vec3(1.0f, 0.3f, 0.5f));
-                    phongMultiLightShader.setMat4("vModel", model);
-                    phongMultiLightShader.bind();
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
-                    phongMultiLightShader.unbind();
+                    texCube.SetPosition(boxSceneOrigin + cubePositions[i]);
+                    texCube.SetScale(1.f, 1.f, 1.f);
+                    texCube.SetRotation(20 * i * 1.f, 20 * i * 0.3f, 20 * i * 0.5f);
+                    texCube.Render(phongMultiLightShader);
                 }
-                box.unbind();
             }
 
             // Render light source box
             {
                 for(auto & pointLightPosition : pointLightPositions)
                 {
-                    boxWithNormal.bind();
-                    model = glm::mat4(1.f);
-                    model = glm::translate(model, boxSceneOrigin + pointLightPosition);
-                    model = glm::scale(model, glm::vec3(0.2f));
+                    cube.SetPosition(boxSceneOrigin + pointLightPosition);
+                    cube.SetScale(glm::vec3(0.2f));
                     lightBulbShader.setFloat4("fColor", 1.f, 1.f, 1.f, 1.f);
-                    lightBulbShader.setMat4("vModel", model);
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
-                    boxWithNormal.unbind();
+                    cube.Render(lightBulbShader);
                 }
 
                 for(auto & spotLightPosition : spotLightPositions)
                 {
-                    boxWithNormal.bind();
-                    model = glm::mat4(1.f);
-                    model = glm::translate(model, boxSceneOrigin + spotLightPosition);
-                    model = glm::scale(model, glm::vec3(0.2f));
+                    cube.SetPosition(spotLightPosition);
+                    cube.SetScale(glm::vec3(0.2f));
                     lightBulbShader.setFloat4("fColor", 1.f, 0.f, 0.f, 1.f);
-                    lightBulbShader.setMat4("vModel", model);
-                    glDrawArrays(GL_TRIANGLES, 0, 36);
-                    boxWithNormal.unbind();
+                    cube.Render(lightBulbShader);
                 }
             }
         }

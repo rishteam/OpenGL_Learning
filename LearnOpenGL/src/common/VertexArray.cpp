@@ -24,6 +24,28 @@ GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 VertexArray::VertexArray()
 {
     glGenVertexArrays(1, &vao);
+    printf("VertexArray::VertexArray(): vao = %d\n", vao);
+}
+
+VertexArray::VertexArray(const VertexArray &va)
+{
+    glGenVertexArrays(1, &vao);
+    if(va.m_vertexBuffer)
+        addVertexBuffer(va.m_vertexBuffer);
+    if(va.m_indexBuffer)
+        setIndexBuffer(va.m_indexBuffer);
+}
+
+VertexArray& VertexArray::operator=(const VertexArray &va)
+{
+    if(vao)
+        glDeleteVertexArrays(1, &vao);
+    glGenVertexArrays(1, &vao);
+    if(va.m_vertexBuffer)
+        addVertexBuffer(va.m_vertexBuffer);
+    if(va.m_indexBuffer)
+        setIndexBuffer(va.m_indexBuffer);
+    return *this;
 }
 
 VertexArray::~VertexArray()

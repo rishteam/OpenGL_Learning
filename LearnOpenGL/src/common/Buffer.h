@@ -139,11 +139,14 @@ private:
 class IndexBuffer
 {
 public:
+    IndexBuffer();
     IndexBuffer(uint32_t *indices, uint32_t count);
     ~IndexBuffer();
 
     void bind() const;
     void unbind() const;
+
+    void setData(uint32_t *indices, uint32_t count);
 
     uint32_t getCount() const { return m_count; };
 private:
