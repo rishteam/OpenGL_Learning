@@ -30,7 +30,6 @@ void Mesh::Render(Shader &shader)
 
     shader.unbind();
     m_VA.unbind();
-    shader.unbind();
 }
 
 void Mesh::SetData(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
@@ -103,7 +102,8 @@ Mesh *Mesh::LoadMesh(const std::string &file)
 ////////////////////////////////////////////////
 
 CubeMesh::CubeMesh(Texture2D *diffuse, Texture2D *specular)
-    : Mesh(cube_vertices_normal_tex, sizeof(cube_vertices_normal_tex), nullptr, 0, {})
+    : Mesh(cube_vertices_normal_tex, cube_vertices_size_normal_tex,
+           cube_vertices_normal_tex_indices, cube_indices_size_normal_tex, {})
 {
     m_Diffuse = diffuse;
     m_Specular = specular;

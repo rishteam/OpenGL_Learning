@@ -66,8 +66,8 @@ public:
     virtual void Render(Shader &shader);
 
 private:
-    Texture2D *m_Diffuse;
-    Texture2D *m_Specular;
+    Texture2D *m_Diffuse = nullptr;
+    Texture2D *m_Specular = nullptr;
 };
 
 // TODO: Impl
