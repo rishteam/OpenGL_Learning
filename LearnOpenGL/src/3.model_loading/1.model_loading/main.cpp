@@ -28,6 +28,7 @@
 #include <Texture.h>
 #include <Vertex.h>
 #include <Mesh.h>
+#include <Model.h>
 
 #include "cube_vertices_normal.h"
 #include "cube_vertices_normal_tex.h"
@@ -74,12 +75,15 @@ int main()
     vb2.setData(sphere_vertices, sizeof(float)*sphere_vertices_size);
     vb2.setLayout({{ShaderDataType::Float3, "aPos"},
                    {ShaderDataType::Float3, "aNormal"}});
-    sphere.addVertexBuffer(&vb2);
+    sphere.AddVertexBuffer(&vb2);
     IndexBuffer ib(sphere_indices, sphere_indices_size);
-    sphere.setIndexBuffer(&ib);
+    sphere.SetIndexBuffer(&ib);
 
     CubeMesh texCube(&boxTex, &boxSpecularMap);
     CubeMesh cube;
+
+    Model testModel("../../../assets/backpack/backpack.obj");
+    Shader modelSimpleShader("model_simple.glsl");
 
     FirstPersonView fpsView(glm::vec3{4.8f, 2.0f, 0.119f}, -20.f, 180.0f);
 
@@ -201,6 +205,10 @@ int main()
                 lightBulbShader.setMat4("vView", view);
                 lightBulbShader.setMat4("vProjection", projection);
                 //
+                // modelSimpleShader
+                modelSimpleShader.setMat4("vView", view);
+                modelSimpleShader.setMat4("vProjection", projection);
+                //
                 // phongMultiLightShader
                 phongMultiLightShader.setMat4("vView", view);
                 phongMultiLightShader.setMat4("vProjection", projection);
@@ -238,28 +246,9 @@ int main()
                 }
             }
 
-            // boxes
+            // Render model
             {
-                static glm::vec3 cubePositions[] = {
-                    glm::vec3( 0.0f,  0.0f,  0.0f),
-                    glm::vec3( 2.0f,  5.0f, -15.0f),
-                    glm::vec3(-1.5f, -2.2f, -2.5f),
-                    glm::vec3(-3.8f, -2.0f, -12.3f),
-                    glm::vec3( 2.4f, -0.4f, -3.5f),
-                    glm::vec3(-1.7f,  3.0f, -7.5f),
-                    glm::vec3( 1.3f, -2.0f, -2.5f),
-                    glm::vec3( 1.5f,  2.0f, -2.5f),
-                    glm::vec3( 1.5f,  0.2f, -1.5f),
-                    glm::vec3(-1.3f,  1.0f, -1.5f)
-                };
-
-                for(int i = 0; i < 10; i++)
-                {
-                    texCube.SetPosition(boxSceneOrigin + cubePositions[i]);
-                    texCube.SetScale(1.f, 1.f, 1.f);
-                    texCube.SetRotation(20 * i * 1.f, 20 * i * 0.3f, 20 * i * 0.5f);
-                    texCube.Render(phongMultiLightShader);
-                }
+                testModel.Render(modelSimpleShader);
             }
 
             // Render light source box
