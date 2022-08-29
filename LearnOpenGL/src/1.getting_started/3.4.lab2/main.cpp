@@ -69,9 +69,9 @@ int main()
     };
     VertexBuffer vertex(vertices, sizeof(vertices));
     vertex.setLayout(bufferLayout);
-    vertexArray.addVertexBuffer(&vertex);
+    vertexArray.AddVertexBuffer(&vertex);
     IndexBuffer index(indices, sizeof(indices) / sizeof(uint32_t));
-    vertexArray.setIndexBuffer(&index);
+    vertexArray.SetIndexBuffer(&index);
 
     sf::Clock deltaClock;
     bool running = true;
@@ -121,9 +121,9 @@ int main()
         shader.setFloat("rotate", rotate_degree);
         shader.setFloat4("posOffset", glm::vec4(off[0], off[1], off[2], off[3]));
         // m_ShaderID.setFloat
-        vertexArray.bind();
+        vertexArray.Bind();
         glDrawElements(GL_TRIANGLES, index.getCount(), GL_UNSIGNED_INT, 0);
-        vertexArray.unbind();
+        vertexArray.Unbind();
         shader.unbind();
 
         if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

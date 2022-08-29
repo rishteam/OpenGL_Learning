@@ -23,49 +23,49 @@ GLenum ShaderDataTypeToOpenGLBaseType(ShaderDataType type)
 
 VertexArray::VertexArray()
 {
-    glGenVertexArrays(1, &vao);
+    glGenVertexArrays(1, &m_ID);
 }
 
 VertexArray::~VertexArray()
 {
-    glDeleteVertexArrays(1, &vao);
+    glDeleteVertexArrays(1, &m_ID);
 }
 
-void VertexArray::bind() const
+void VertexArray::Bind() const
 {
-    glBindVertexArray(vao);
+    glBindVertexArray(m_ID);
 }
 
-void VertexArray::unbind() const
+void VertexArray::Unbind() const
 {
     glBindVertexArray(0);
 }
 
-void VertexArray::addVertexBuffer(VertexBuffer *vertexBuffer)
+void VertexArray::AddVertexBuffer(VertexBuffer *vertexBuffer)
 {
-    glBindVertexArray(vao);
+    glBindVertexArray(m_ID);
     vertexBuffer->bind();
     assert(vertexBuffer->getLayout().getElements().size() > 0);
 
     const auto &layout = vertexBuffer->getLayout();
     for(const auto & element : layout)
     {
-        glEnableVertexAttribArray(m_vertexBufferIndex);
-        glVertexAttribPointer(m_vertexBufferIndex,
-            element.getComponentCount(),
-            ShaderDataTypeToOpenGLBaseType(element.type),
+        glEnableVertexAttribArray(m_VertexBufferIndex);
+        glVertexAttribPointer(m_VertexBufferIndex,
+                              element.getComponentCount(),
+                              ShaderDataTypeToOpenGLBaseType(element.type),
             element.normalized ? GL_TRUE : GL_FALSE,
-            layout.getStride(),
-            (const void*)element.offset);
-        m_vertexBufferIndex++;
+                              layout.getStride(),
+                              (const void*)element.offset);
+        m_VertexBufferIndex++;
     }
 
-    m_vertexBuffer = vertexBuffer;
+    m_VertexBuffer = vertexBuffer;
 }
 
-void VertexArray::setIndexBuffer(IndexBuffer *indexBuf)
+void VertexArray::SetIndexBuffer(IndexBuffer *indexBuf)
 {
-    glBindVertexArray(vao);
+    glBindVertexArray(m_ID);
     indexBuf->bind();
-    m_indexBuffer = indexBuf;
+    m_IndexBuffer = indexBuf;
 }

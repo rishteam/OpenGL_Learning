@@ -84,23 +84,23 @@ int main()
         a->setLayout({{ShaderDataType::Float3, "aPos"},
                       {ShaderDataType::Float3, "aNormal"},
                       {ShaderDataType::Float2, "aTexCoords"}});
-        box.addVertexBuffer(a);
+        box.AddVertexBuffer(a);
     }
     VertexArray boxWithNormal;
     {
         b->setData(cube_vertices_normal, sizeof(cube_vertices_normal));
         b->setLayout({{ShaderDataType::Float3, "aPos"},
                        {ShaderDataType::Float3, "aNormal"}});
-        boxWithNormal.addVertexBuffer(b);
+        boxWithNormal.AddVertexBuffer(b);
     }
     VertexArray sphere;
     VertexBuffer vb2;
     vb2.setData(sphere_vertices, sizeof(float)*sphere_vertices_size);
     vb2.setLayout({{ShaderDataType::Float3, "aPos"},
                    {ShaderDataType::Float3, "aNormal"}});
-    sphere.addVertexBuffer(&vb2);
+    sphere.AddVertexBuffer(&vb2);
     IndexBuffer ib(sphere_indices, sphere_indices_size);
-    sphere.setIndexBuffer(&ib);
+    sphere.SetIndexBuffer(&ib);
 
     FirstPersonView fpsView(glm::vec3{4.8f, 2.0f, 0.119f}, -20.f, 180.0f);
 
@@ -261,7 +261,7 @@ int main()
 
             // boxes
             {
-                box.bind();
+                box.Bind();
                 static glm::vec3 cubePositions[] = {
                     glm::vec3( 0.0f,  0.0f,  0.0f),
                     glm::vec3( 2.0f,  5.0f, -15.0f),
@@ -286,33 +286,33 @@ int main()
                     glDrawArrays(GL_TRIANGLES, 0, 36);
                     phongMultiLightShader.unbind();
                 }
-                box.unbind();
+                box.Unbind();
             }
 
             // Render light source box
             {
                 for(auto & pointLightPosition : pointLightPositions)
                 {
-                    boxWithNormal.bind();
+                    boxWithNormal.Bind();
                     model = glm::mat4(1.f);
                     model = glm::translate(model, boxSceneOrigin + pointLightPosition);
                     model = glm::scale(model, glm::vec3(0.2f));
                     lightBulbShader.setFloat4("fColor", 1.f, 1.f, 1.f, 1.f);
                     lightBulbShader.setMat4("vModel", model);
                     glDrawArrays(GL_TRIANGLES, 0, 36);
-                    boxWithNormal.unbind();
+                    boxWithNormal.Unbind();
                 }
 
                 for(auto & spotLightPosition : spotLightPositions)
                 {
-                    boxWithNormal.bind();
+                    boxWithNormal.Bind();
                     model = glm::mat4(1.f);
                     model = glm::translate(model, boxSceneOrigin + spotLightPosition);
                     model = glm::scale(model, glm::vec3(0.2f));
                     lightBulbShader.setFloat4("fColor", 1.f, 0.f, 0.f, 1.f);
                     lightBulbShader.setMat4("vModel", model);
                     glDrawArrays(GL_TRIANGLES, 0, 36);
-                    boxWithNormal.unbind();
+                    boxWithNormal.Unbind();
                 }
             }
         }

@@ -82,7 +82,7 @@ int main()
     };
     VertexBuffer vertex;
     vertex.setLayout(bufferLayout);
-    vertexArray.addVertexBuffer(&vertex);
+    vertexArray.AddVertexBuffer(&vertex);
 
     bool click = false;
 
@@ -184,9 +184,9 @@ int main()
         if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         shader.bind();
-        vertexArray.bind();
+        vertexArray.Bind();
         glDrawArrays(GL_TRIANGLES, 0, pointList.size()/2);
-        vertexArray.unbind();
+        vertexArray.Unbind();
         shader.unbind();
 
         if(wire_mode) glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);

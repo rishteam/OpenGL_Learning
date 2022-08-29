@@ -68,14 +68,14 @@ int main()
         vb->setData(vertices, sizeof(vertices));
         vb->setLayout({{ShaderDataType::Float3, "aPos"},
                       {ShaderDataType::Float3, "aNormal"}});
-        box.addVertexBuffer(vb);
+        box.AddVertexBuffer(vb);
     }
     VertexArray light;
     {
         vb->setData(vertices, sizeof(vertices));
         vb->setLayout({{ShaderDataType::Float3, "aPos"},
                        {ShaderDataType::Float3, "aNormal"}});
-        light.addVertexBuffer(vb);
+        light.AddVertexBuffer(vb);
     }
 
     FirstPersonView fpsView;
@@ -167,24 +167,24 @@ int main()
 
             // Render box
             {
-                box.bind();
+                box.Bind();
                 model = glm::translate(model, glm::vec3(0.f, 0.f, 0.f));
                 model = glm::rotate(model, /*glm::radians(*/accClk/*)*/, glm::vec3(0.f, 1.f, 0.f));
                 lightShader.setMat4("vModel", model);
                 model = glm::mat4(1.f);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
-                box.unbind();
+                box.Unbind();
             }
 
             // Render light
             {
-                light.bind();
+                light.Bind();
                 model = glm::translate(model, lightPos);
                 model = glm::scale(model, glm::vec3(0.2f));
                 lightSurfaceShader.setMat4("vModel", model);
                 model = glm::mat4(1.f);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
-                light.unbind();
+                light.Unbind();
             }
         }
 

@@ -70,23 +70,23 @@ int main()
         vb->setData(vertices, sizeof(vertices));
         vb->setLayout({{ShaderDataType::Float3, "aPos"},
                       {ShaderDataType::Float3, "aNormal"}});
-        box.addVertexBuffer(vb);
+        box.AddVertexBuffer(vb);
     }
     VertexArray light;
     {
         vb->setData(vertices, sizeof(vertices));
         vb->setLayout({{ShaderDataType::Float3, "aPos"},
                        {ShaderDataType::Float3, "aNormal"}});
-        light.addVertexBuffer(vb);
+        light.AddVertexBuffer(vb);
     }
     VertexArray sphere;
     VertexBuffer vb2;
     vb2.setData(sphere_vertices, sizeof(float)*sphere_vertices_size);
     vb2.setLayout({{ShaderDataType::Float3, "aPos"},
                    {ShaderDataType::Float3, "aNormal"}});
-    sphere.addVertexBuffer(&vb2);
+    sphere.AddVertexBuffer(&vb2);
     IndexBuffer ib(sphere_indices, sphere_indices_size);
-    sphere.setIndexBuffer(&ib);
+    sphere.SetIndexBuffer(&ib);
 
     FirstPersonView fpsView(glm::vec3{-3.f, 1.f, 0.05f}, -15.f, -0.5f);
 
@@ -239,35 +239,35 @@ int main()
 
             // Render phong-shaded sphere
             {
-                sphere.bind();
+                sphere.Bind();
                 model = glm::mat4(1.f);
                 model = glm::translate(model, phongSpherePos);
                 model = glm::rotate(model, /*glm::radians(*/accClk/*)*/, glm::vec3(0.f, 1.f, 0.f));
                 phongShader.setMat4("vModel", model);
                 glDrawElements(GL_TRIANGLES, sphere_indices_size, GL_UNSIGNED_INT, 0);
-                sphere.unbind();
+                sphere.Unbind();
             }
 
             // Render gouraud-shaded sphere
             {
-                sphere.bind();
+                sphere.Bind();
                 model = glm::mat4(1.f);
                 model = glm::translate(model, gouraudSpherePos);
                 model = glm::rotate(model, /*glm::radians(*/accClk/*)*/, glm::vec3(0.f, 1.f, 0.f));
                 gouraudShader.setMat4("vModel", model);
                 glDrawElements(GL_TRIANGLES, sphere_indices_size, GL_UNSIGNED_INT, 0);
-                sphere.unbind();
+                sphere.Unbind();
             }
 
             // Render light source box
             {
-                light.bind();
+                light.Bind();
                 model = glm::mat4(1.f);
                 model = glm::translate(model, lightPos);
                 model = glm::scale(model, glm::vec3(0.2f));
                 lightSurfaceShader.setMat4("vModel", model);
                 glDrawArrays(GL_TRIANGLES, 0, 36);
-                light.unbind();
+                light.Unbind();
             }
         }
 
