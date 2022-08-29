@@ -10,13 +10,14 @@ add_library(${PROJECT_NAME}
     VertexArray.cpp
     Debug.cpp
     Mesh.cpp
-        Model.cpp Model.h)
+    Model.cpp
+)
 add_library(common::common ALIAS common)
 
-target_link_libraries(${PROJECT_NAME} glad::glad)
 find_package(SFML 2.5 COMPONENTS system window graphics network audio REQUIRED)
-target_link_libraries(${PROJECT_NAME} sfml-system sfml-window sfml-graphics)
 find_package(fmt REQUIRED)
-target_link_libraries(${PROJECT_NAME} fmt::fmt)
+target_link_libraries(${PROJECT_NAME} glad::glad)
+target_link_libraries(${PROJECT_NAME} sfml-system sfml-window sfml-graphics)
+target_link_libraries(${PROJECT_NAME} fmt::fmt debugbreak::debugbreak)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ${PROJECT_SOURCE_DIR}/)

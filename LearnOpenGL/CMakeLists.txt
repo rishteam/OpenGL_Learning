@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(LearnOpenGL)
 
 add_subdirectory(deps/glad)
+add_subdirectory(deps/debug_break)
 
 set(BUILD_SHARED_LIBS OFF CACHE BOOL force)
 set(ASSIMP_BUILD_X3D_IMPORTER off)

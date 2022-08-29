@@ -29,6 +29,7 @@
 #include <Vertex.h>
 #include <Mesh.h>
 #include <Model.h>
+#include <Debug.h>
 
 #include "cube_vertices_normal.h"
 #include "cube_vertices_normal_tex.h"
@@ -128,14 +129,13 @@ int main()
         static glm::vec3 spotLightDirs[] = {
                 {-0.94f, -0.16f, -0.27f}
         };
-        static glm::vec3 boxSceneOrigin(0.f, 0.f, 0.f);
         glm::mat4 model(1.f), view(1.f), projection(1.f);
         {
             ImGui::SFML::Update(window, deltaClock.restart());
 
             {
                 ImGui::Begin("Help", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-                ImGui::Text("2.2.3.calculate_phong_in_view_space");
+                ImGui::Text("3.1.Model Loading");
                 ImGui::Text("WASD - Move the camera");
                 ImGui::Text("Space/Ctrl - Go up / down");
                 ImGui::Text("Left Alt - Enable/Disable mouse capture");
@@ -220,7 +220,7 @@ int main()
 
                 for(int i = 0; i < 4; i++)
                 {
-                    phongMultiLightShader.setFloat3("pointLights[" + std::to_string(i) + "].pos", boxSceneOrigin + pointLightPositions[i]);
+                    phongMultiLightShader.setFloat3("pointLights[" + std::to_string(i) + "].pos", pointLightPositions[i]);
                     phongMultiLightShader.setFloat("pointLights[" + std::to_string(i) + "].constant", 1.f);
                     phongMultiLightShader.setFloat("pointLights[" + std::to_string(i) + "].linear", 0.09f);
                     phongMultiLightShader.setFloat("pointLights[" + std::to_string(i) + "].quadratic", 0.032f);
@@ -231,7 +231,7 @@ int main()
 
                 for(int i = 0; i < 1; i++)
                 {
-                    phongMultiLightShader.setFloat3("spotLights[" + std::to_string(i) + "].pos", boxSceneOrigin + spotLightPositions[i]);
+                    phongMultiLightShader.setFloat3("spotLights[" + std::to_string(i) + "].pos", spotLightPositions[i]);
                     phongMultiLightShader.setFloat3("spotLights[" + std::to_string(i) + "].dir", spotLightDirs[i]);
                     phongMultiLightShader.setFloat("spotLights[" + std::to_string(i) + "].constant", 1.f);
                     phongMultiLightShader.setFloat("spotLights[" + std::to_string(i) + "].linear", 0.09f);
@@ -248,6 +248,7 @@ int main()
 
             // Render model
             {
+                testModel.SetScale({0.5f, 0.5f, 0.5f});
                 testModel.Render(modelSimpleShader);
             }
 
@@ -255,7 +256,7 @@ int main()
             {
                 for(auto & pointLightPosition : pointLightPositions)
                 {
-                    cube.SetPosition(boxSceneOrigin + pointLightPosition);
+                    cube.SetPosition(pointLightPosition);
                     cube.SetScale(glm::vec3(0.2f));
                     lightBulbShader.setFloat4("fColor", 1.f, 1.f, 1.f, 1.f);
                     cube.Render(lightBulbShader);
