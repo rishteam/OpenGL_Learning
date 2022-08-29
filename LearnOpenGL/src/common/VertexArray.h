@@ -17,14 +17,14 @@ public:
 
     VertexArray& operator=(const VertexArray& va);
 
-    void bind() const;
-    void unbind() const;
+    void Bind() const;
+    void Unbind() const;
 
-    void addVertexBuffer(VertexBuffer *vertexBuf);
-    void setIndexBuffer(IndexBuffer *indexBuf);
+    void AddVertexBuffer(VertexBuffer *vertexBuf);
+    void SetIndexBuffer(IndexBuffer *indexBuf);
 private:
-    uint32_t vao;
-    VertexBuffer* m_vertexBuffer = nullptr;
-    IndexBuffer *m_indexBuffer = nullptr;
-    uint32_t m_vertexBufferIndex = 0;
+    uint32_t m_ID;
+    VertexBuffer* m_VertexBuffer = nullptr;
+    IndexBuffer *m_IndexBuffer = nullptr;
+    uint32_t m_VertexBufferIndex = 0;
 };

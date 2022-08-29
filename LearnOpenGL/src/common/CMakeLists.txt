@@ -10,7 +10,7 @@ add_library(${PROJECT_NAME}
     VertexArray.cpp
     Debug.cpp
     Mesh.cpp
-        )
+        Model.cpp Model.h)
 add_library(common::common ALIAS common)
 
 target_link_libraries(${PROJECT_NAME} glad::glad)

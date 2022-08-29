@@ -17,7 +17,7 @@ class Mesh
 public:
     std::vector<Vertex> m_Vertices;
     std::vector<uint32_t> m_Indices;
-    std::vector<Texture2D> m_Textures;
+    std::vector<Texture2D*> m_Textures;
     glm::vec3 m_Position;
     glm::vec3 m_Rotation; // degree
     glm::vec4 m_Color{1.f, 1.f, 1.f, 1.f};
@@ -25,10 +25,10 @@ public:
 
 public:
     Mesh() = default;
-    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::vector<Texture2D> &textures);
+    Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::vector<Texture2D*> &textures);
 
     virtual void Render(Shader &shader);
-    void SetData(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::vector<Texture2D> &textures);
+    void SetData(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, const std::vector<Texture2D*> &textures);
     bool Init();
 
     static Mesh* LoadMesh(const std::string &file);
@@ -50,7 +50,7 @@ public:
 
 protected:
     // TODO: Remove this
-    Mesh(float *vertices, size_t verticeSize, uint32_t *indices, size_t indiceCount, const std::vector<Texture2D> &textures);
+    Mesh(float *vertices, size_t verticeSize, uint32_t *indices, size_t indiceCount, const std::vector<Texture2D*> &textures);
 private:
 
     VertexArray m_VA;

@@ -6,14 +6,14 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 Mesh::Mesh(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
-           const std::vector<Texture2D> &textures)
+           const std::vector<Texture2D*> &textures)
 {
     SetData(vertices, indices, textures);
 }
 
 void Mesh::Render(Shader &shader)
 {
-    m_VA.bind();
+    m_VA.Bind();
     glm::mat4 model = glm::mat4(1.f);
     model = glm::translate(model, m_Position);
     model = glm::rotate(model, glm::radians(m_Rotation.x), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -21,6 +21,14 @@ void Mesh::Render(Shader &shader)
     model = glm::rotate(model, glm::radians(m_Rotation.z), glm::vec3(0.0f, 0.0f, 1.0f));
     model = glm::scale(model, m_Scale);
     shader.setMat4("vModel", model);
+
+    for(auto tex : m_Textures)
+    {
+        if(tex->GetName().find("texture_specular") != std::string::npos) // TODO: DEBUG
+            continue;
+        shader.setTexture(/*"material." + */tex->GetName(), *tex);
+    }
+
     shader.bind();
 
     if(!m_Indices.empty())
@@ -29,11 +37,11 @@ void Mesh::Render(Shader &shader)
         glDrawArrays(GL_TRIANGLES, 0, m_Vertices.size());
 
     shader.unbind();
-    m_VA.unbind();
+    m_VA.Unbind();
 }
 
 void Mesh::SetData(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices,
-                   const std::vector<Texture2D> &textures)
+                   const std::vector<Texture2D*> &textures)
 {
     m_Vertices = vertices;
     m_Indices = indices;
@@ -49,17 +57,17 @@ bool Mesh::Init()
     m_VB.setLayout({{ShaderDataType::Float3, "aPos"},
                     {ShaderDataType::Float3, "aNormal"},
                     {ShaderDataType::Float2, "aTexCoords"}});
-    m_VA.addVertexBuffer(&m_VB);
+    m_VA.AddVertexBuffer(&m_VB);
 
     // Index Buffer
     m_IB.setData(const_cast<uint32_t *>(&(m_Indices[0])), m_Indices.size());
-    m_VA.setIndexBuffer(&m_IB);
+    m_VA.SetIndexBuffer(&m_IB);
 
     return true;
 }
 
 Mesh::Mesh(float *vertices, size_t verticeSize, uint32_t *indices, size_t indiceCount,
-           const std::vector<Texture2D> &textures)
+           const std::vector<Texture2D*> &textures)
 {
     Vertex v{};
     for(int i = 0; i < verticeSize; i += 8)
@@ -82,13 +90,13 @@ Mesh::Mesh(float *vertices, size_t verticeSize, uint32_t *indices, size_t indice
     m_VB.setLayout({{ShaderDataType::Float3, "aPos"},
                     {ShaderDataType::Float3, "aNormal"},
                     {ShaderDataType::Float2, "aTexCoords"}});
-    m_VA.addVertexBuffer(&m_VB);
+    m_VA.AddVertexBuffer(&m_VB);
 
     // Index Buffer
     if(indices)
     {
         m_IB.setData(indices, indiceCount);
-        m_VA.setIndexBuffer(&m_IB);
+        m_VA.SetIndexBuffer(&m_IB);
     }
 }
 
