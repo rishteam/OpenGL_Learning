@@ -138,6 +138,24 @@ void Model::Render(Shader &shader)
 {
     for(Mesh *m : m_Meshes)
     {
+        // TODO: refactor this s**t
+        auto a = m->GetPosition();
+        auto b = m->GetRotation();
+        auto c = m->GetScale();
+
+        m->SetPosition(m_Position + m->GetPosition());
+        m->SetRotation(m_Rotation + m->GetRotation());
+        m->SetScale(m_Scale * m->GetScale());
+
+//        printf("(%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f) (%.2f, %.2f, %.2f)\n",
+//               m->GetPosition().x, m->GetPosition().y, m->GetPosition().z,
+//               m->GetRotation().x, m->GetRotation().y, m->GetRotation().z,
+//               m->GetScale().x, m->GetScale().y, m->GetScale().z);
+
+        m->SetPosition(a);
+        m->SetRotation(b);
+        m->SetScale(c);
+
         m->Render(shader);
     }
 }

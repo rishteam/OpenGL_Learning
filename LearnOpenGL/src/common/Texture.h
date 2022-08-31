@@ -56,10 +56,4 @@ private:
     uint32_t m_TextureID;
 };
 
-class DiffuseTexture : public Texture2D
-{
-public:
-//    DiffuseTexture(const std::string &path, )
-};
-
 #endif //LEARNOPENGL_TEXTURE_H

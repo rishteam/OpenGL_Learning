@@ -7,9 +7,10 @@
 #include <filesystem>
 
 #include "Mesh.h"
+#include "Object.h"
 #include "Shader.h"
 
-class Model
+class Model : public Object3D
 {
 public:
     Model() = default;

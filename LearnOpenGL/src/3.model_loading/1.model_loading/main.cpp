@@ -83,7 +83,8 @@ int main()
     CubeMesh texCube(&boxTex, &boxSpecularMap);
     CubeMesh cube;
 
-    Model testModel("../../../assets/backpack/backpack.obj");
+//    Model testModel("../../../assets/backpack/backpack.obj");
+    Model testModel("../../../assets/nanosuit/nanosuit.obj");
     Shader modelSimpleShader("model_simple.glsl");
 
     FirstPersonView fpsView(glm::vec3{4.8f, 2.0f, 0.119f}, -20.f, 180.0f);
